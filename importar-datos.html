@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Importar Datos Históricos - APPCC</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 { color: #d97642; }
+        button {
+            background: #d97642;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+        }
+        button:hover { background: #c66535; }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .progress {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success { color: green; }
+        .error { color: red; }
+        .info { color: blue; }
+        .warning { color: orange; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>📦 Importar Datos Históricos a Supabase</h1>
+        <p><strong>Total de registros a importar: 266</strong></p>
+        <ul>
+            <li>80 Temperaturas</li>
+            <li>59 Recepciones</li>
+            <li>93 Limpiezas</li>
+            <li>34 Proveedores</li>
+        </ul>
+        
+        <p class="warning">⚠️ IMPORTANTE: Solo ejecuta esto UNA VEZ. Los datos se importarán permanentemente a Supabase.</p>
+        
+        <button id="importBtn" onclick="importarDatos()">🚀 IMPORTAR DATOS AHORA</button>
+    </div>
+
+    <div class="card">
+        <h2>📊 Progreso</h2>
+        <div id="progress" class="progress">Esperando...</div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://qjwngtsicucyeskhlucz.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqd25ndHNpY3VjeWVza2hsdWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjMyNTIsImV4cCI6MjA5Mzg5OTI1Mn0.CBpP4GBezSUL51Qp_Hc0fqJSm6jQaOrgkFAWj3g9qCg';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        const datos = {
+            "temperaturas": [
+                        {
+                                    "fecha": "2026-01-05",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-05",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-05",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-05",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-10",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-10",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-10",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-10",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-15",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-15",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-15",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-15",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-25",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-25",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-25",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-25",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-05",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-05",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-05",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-05",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-15",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-15",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-15",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-15",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-20",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-20",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-20",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-20",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-05",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-05",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-05",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-05",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-15",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-15",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-15",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-15",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-20",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-20",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-20",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-20",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-05",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-05",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-05",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-05",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-10",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-10",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-10",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-10",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-15",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-15",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-15",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-15",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-20",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-20",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-20",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-20",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "David",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "equipo": "CÁMARA COCINA",
+                                    "temperatura": "4",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "equipo": "CONGELADOR COCINA",
+                                    "temperatura": "-18",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "equipo": "CÁMARA ALMACÉN",
+                                    "temperatura": "5",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "equipo": "CONGELADOR DESPENSA",
+                                    "temperatura": "-19",
+                                    "operario": "Lili",
+                                    "conforme": "SÍ",
+                                    "observaciones": ""
+                        }
+            ],
+            "recepcion": [
+                        {
+                                    "fecha": "2026-01-04",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-04",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-04",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-05",
+                                    "producto": "PATATAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-05",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-09",
+                                    "producto": "CARNE GUISAR",
+                                    "proveedor": "GARCIA POO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-10",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-12",
+                                    "producto": "J. SERRANO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-12",
+                                    "producto": "PICADILLO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-17",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-21",
+                                    "producto": "PATATAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-21",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-21",
+                                    "producto": "LECHUGAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-06",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-06",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-06",
+                                    "producto": "CARNE PICADA",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-09",
+                                    "producto": "PATATAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-09",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-11",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-11",
+                                    "producto": "ALITAS P.",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-13",
+                                    "producto": "CARNE GUISAR",
+                                    "proveedor": "MATADERO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-13",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-13",
+                                    "producto": "J. SERRANO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-18",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-21",
+                                    "producto": "JAMÓN",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "producto": "PATATAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "producto": "NARANJAS ",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "producto": "LECHUGAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-06",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-06",
+                                    "producto": "CARNE GUISAR",
+                                    "proveedor": "MATADERO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-13",
+                                    "producto": "J. SERRANO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-13",
+                                    "producto": "PICADILLO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-14",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-14",
+                                    "producto": "CARRILLERAS",
+                                    "proveedor": "MAYBE",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-27",
+                                    "producto": "BACON",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-19",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-19",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-21",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-21",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "producto": "CARRILLERAS",
+                                    "proveedor": "Maybe",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-11",
+                                    "producto": "J. SERRANO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-11",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-11",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-11",
+                                    "producto": "ALITAS P.",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-16",
+                                    "producto": "PICADILLO",
+                                    "proveedor": "ALTO ALLER",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-16",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-16",
+                                    "producto": "L.ADOBADO",
+                                    "proveedor": "MACRO",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "producto": "LOMO FRESCO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-25",
+                                    "producto": "NARANJAS",
+                                    "proveedor": "FEITO Y TOYOSA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "producto": "POLLO",
+                                    "proveedor": "ALIMERKA",
+                                    "cantidad": "",
+                                    "precio": 0,
+                                    "estado": "Correcto",
+                                    "observaciones": ""
+                        }
+            ],
+            "limpieza": [
+                        {
+                                    "fecha": "2026-01-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-13",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-13",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-13",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-13",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-13",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-13",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-13",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-13",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-13",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-13",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-20",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-27",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-27",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-20",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-27",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-27",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-20",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-27",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-27",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-20",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-27",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-27",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-20",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-20",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-27",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-27",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-28",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COMEDOR",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-28",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-01-28",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "DE TECHOS Y LÁMPARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-01-28",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-24",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-24",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-24",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-24",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-24",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-24",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COMEDOR",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-02-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "DE TECHOS Y LÁMPARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-02-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-03",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-03",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-10",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-10",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-17",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-17",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-25",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-25",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-26",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COMEDOR",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-26",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-26",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "DE TECHOS Y LÁMPARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-26",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-31",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-31",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-31",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-31",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-31",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-31",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-31",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-31",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-03-31",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-03-31",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-07",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-07",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-14",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-14",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-21",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-14",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COCINA",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-14",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-21",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-14",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-14",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-21",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-14",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-14",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-21",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-14",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-14",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-21",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-21",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES COMEDOR",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CAMPANAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "DE TECHOS Y LÁMPARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "CÁMARAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "PAREDES BAÑO",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        },
+                        {
+                                    "fecha": "2026-04-30",
+                                    "frecuencia": "SEMANAL",
+                                    "tarea": "ESTANTERÍAS",
+                                    "operario": "David",
+                                    "firma": "David Fuertes Cabeza - 2026-04-30",
+                                    "observaciones": ""
+                        }
+            ],
+            "proveedores": [
+                        {
+                                    "nombre": "ALIMERKA S.A.",
+                                    "nif": "A33093097",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "ALMACENES HUERTO C.B",
+                                    "nif": "E74384348",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "APOLO ASTURIAS S.L.U.",
+                                    "nif": "B74237256",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "ASTURARCO 2012 S.L.",
+                                    "nif": "B74330333",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "Bebalia",
+                                    "nif": "B74296633",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "CAPRICE EXCLUSIVAS SELECTAS S.L.",
+                                    "nif": "B52517224",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "CARNICERIA PILU PACHECO",
+                                    "nif": "E74381005",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "CARREFOUR S.A.",
+                                    "nif": "A28425270",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "CoaLla LOGISTICA S.L.",
+                                    "nif": "B33865023",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "COORP. ALIM.PEÑASANTA S.A.A",
+                                    "nif": "A03161270",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "COYA E HIJOS S.L.",
+                                    "nif": "B33350786",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "DELGADO ASTURIAS S.L.",
+                                    "nif": "B86673001",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "DISCEAS S.L.",
+                                    "nif": "B33258922",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "EDP ENERGIA S.A.U.",
+                                    "nif": "A33543547",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "EXCLUSIVAS SAGA S.L.",
+                                    "nif": "B74267196",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "FAST EUROCAFE S.A.",
+                                    "nif": "A33637463",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "FEITO Y TOYOSA S.A.",
+                                    "nif": "A33115007",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "FLOVAR S.L.",
+                                    "nif": "B33478066",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "GOURMET PANADEROS S.L.",
+                                    "nif": "B85424778",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "GRANJAS PORCEYO S.L.",
+                                    "nif": "B33976002",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "H.L.R. S.A. Más y Mas",
+                                    "nif": "A33026105",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "J. ARDURA PATATAS Y FRUTA S.L.",
+                                    "nif": "B74394362",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "IMPERIAL SOLARES",
+                                    "nif": "B74398587",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "LEGON GESTION DE REPARTO S.L.",
+                                    "nif": "B74093881",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "LIDL SUPERMERCADOS S.A.U.",
+                                    "nif": "A60195278",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "Makro A28647451",
+                                    "nif": "A46103834",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "MERCADONA S.A.",
+                                    "nif": "A46103834",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "Mº DOLORES GONZALEZ LAURES",
+                                    "nif": "09361638V",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "VCORONAS S.L.",
+                                    "nif": "B33573601",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "COCA COLA EUROPEAN",
+                                    "nif": "B86561412",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "AITOR LUIS VEGA",
+                                    "nif": "32882242Q",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "EMBUTIDOS ALTO ALLER S.L.",
+                                    "nif": "B74124108",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "VINOS Y DESTILADOS SABINO S.L.",
+                                    "nif": "B74404641",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        },
+                        {
+                                    "nombre": "GRUPO INCARLI S.L.",
+                                    "nif": "B39826417",
+                                    "telefono": "",
+                                    "email": "",
+                                    "productos": ""
+                        }
+            ]
+};
+        
+        function log(type, message) {
+            const p = document.createElement('p');
+            p.className = type;
+            p.textContent = message;
+            document.getElementById('progress').appendChild(p);
+            document.getElementById('progress').scrollTop = document.getElementById('progress').scrollHeight;
+        }
+        
+        async function importarDatos() {
+            const btn = document.getElementById('importBtn');
+            btn.disabled = true;
+            btn.textContent = 'Importando...';
+            
+            document.getElementById('progress').innerHTML = '';
+            log('info', '🚀 Iniciando importación...');
+            
+            try {
+                // TEMPERATURAS
+                log('info', '\n📊 Importando temperaturas...');
+                const { data: tempData, error: tempError } = await supabase
+                    .from('temperaturas')
+                    .insert(datos.temperaturas);
+                
+                if (tempError) {
+                    log('error', '❌ Error en temperaturas: ' + tempError.message);
+                } else {
+                    log('success', '✅ ' + datos.temperaturas.length + ' temperaturas importadas');
+                }
+                
+                // RECEPCIONES
+                log('info', '\n📦 Importando recepciones...');
+                const { data: recData, error: recError } = await supabase
+                    .from('recepcion')
+                    .insert(datos.recepcion);
+                
+                if (recError) {
+                    log('error', '❌ Error en recepciones: ' + recError.message);
+                } else {
+                    log('success', '✅ ' + datos.recepcion.length + ' recepciones importadas');
+                }
+                
+                // LIMPIEZAS
+                log('info', '\n🧹 Importando limpiezas...');
+                const { data: limpData, error: limpError } = await supabase
+                    .from('limpieza')
+                    .insert(datos.limpieza);
+                
+                if (limpError) {
+                    log('error', '❌ Error en limpiezas: ' + limpError.message);
+                } else {
+                    log('success', '✅ ' + datos.limpieza.length + ' limpiezas importadas');
+                }
+                
+                // PROVEEDORES
+                log('info', '\n🏢 Importando proveedores...');
+                const { data: provData, error: provError } = await supabase
+                    .from('proveedores')
+                    .insert(datos.proveedores);
+                
+                if (provError) {
+                    log('error', '❌ Error en proveedores: ' + provError.message);
+                } else {
+                    log('success', '✅ ' + datos.proveedores.length + ' proveedores importados');
+                }
+                
+                log('success', '\n\n🎉 ¡IMPORTACIÓN COMPLETADA!');
+                log('info', 'Puedes cerrar esta página y abrir la app.');
+                btn.textContent = '✅ IMPORTACIÓN COMPLETADA';
+                
+            } catch (error) {
+                log('error', '❌ Error general: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = 'Reintentar Importación';
+            }
+        }
+    </script>
+</body>
+</html>
