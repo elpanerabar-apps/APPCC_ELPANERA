@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Simple - Sin Errores</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: Arial; max-width: 400px; margin: 100px auto; }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; font-size: 16px; }
+        button { background: #d97642; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>APPCC El Panera</h1>
+    <form id="loginForm">
+        <input type="text" id="user" placeholder="Usuario" value="david">
+        <input type="password" id="pass" placeholder="Contraseña" value="panera2026">
+        <button type="submit">ENTRAR</button>
+    </form>
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <script>
+        // SOLO UNA DECLARACIÓN DE SUPABASE
+        const supabaseClient = window.supabase.createClient(
+            'https://qjwngtsicucyeskhlucz.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFqd25ndHNpY3VjeWVza2hsdWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzMjMyNTIsImV4cCI6MjA5Mzg5OTI1Mn0.CBpP4GBezSUL51Qp_Hc0fqJSm6jQaOrgkFAWj3g9qCg'
+        );
+        
+        console.log('✅ Supabase inicializado');
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const user = document.getElementById('user').value;
+            const pass = document.getElementById('pass').value;
+            
+            const validUsers = {
+                'david': 'panera2026',
+                'lili': 'panera2026',
+                'admin': 'admin2026'
+            };
+            
+            if (validUsers[user] === pass) {
+                document.getElementById('result').innerHTML = '✅ LOGIN CORRECTO<br>Probando Supabase...';
+                
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('temperaturas')
+                        .select('count');
+                    
+                    if (error) {
+                        document.getElementById('result').innerHTML += '<br>❌ Error Supabase: ' + error.message;
+                    } else {
+                        document.getElementById('result').innerHTML += '<br>✅ Supabase conectado correctamente!';
+                        document.getElementById('result').innerHTML += '<br><br>Redirigiendo a la app completa en 2 segundos...';
+                        
+                        setTimeout(() => {
+                            window.location.href = 'appcc-completa.html';
+                        }, 2000);
+                    }
+                } catch (err) {
+                    document.getElementById('result').innerHTML += '<br>❌ Excepción: ' + err.message;
+                }
+            } else {
+                document.getElementById('result').innerHTML = '❌ Usuario o contraseña incorrectos';
+            }
+        });
+    </script>
+</body>
+</html>
