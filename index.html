@@ -591,32 +591,32 @@
         }
 
         .dashboard-header {
-            background: linear-gradient(135deg, #1A1A2E 0%, #16213E 100%);
-            padding: 20px 20px 16px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: var(--cream);
+            padding: 24px 20px 16px;
+            border-bottom: 2px solid rgba(217,118,66,0.15);
         }
 
         .dashboard-saludo {
             font-family: 'Work Sans', sans-serif;
-            font-size: 12px;
-            font-weight: 500;
-            color: rgba(255,255,255,0.45);
-            letter-spacing: 0.08em;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--terracotta);
+            letter-spacing: 0.1em;
             text-transform: uppercase;
             margin-bottom: 2px;
         }
 
         .dashboard-titulo {
             font-family: 'DM Serif Display', serif;
-            font-size: 26px;
-            color: #fff;
+            font-size: 28px;
+            color: var(--charcoal);
             line-height: 1.1;
         }
 
         .dashboard-subtitulo {
             font-family: 'Work Sans', sans-serif;
             font-size: 12px;
-            color: rgba(255,255,255,0.4);
+            color: var(--warmgray);
             margin-top: 4px;
         }
 
@@ -4080,14 +4080,15 @@
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('appContainer').classList.add('active');
                 
-                // Cargar datos desde Supabase
+                // Mostrar dashboard inmediatamente
+                updateDashboard();
+                setDefaultDates();
+                // Cargar datos en segundo plano
                 try {
                     await loadData();
-                    setDefaultDates();
                 } catch (error) {
                     console.error('Error al cargar datos:', error);
-                    alert('✅ Login correcto. Cargando datos...');
-                    setDefaultDates();
+                    // Sin alert — el dashboard ya está visible
                 }
             } else {
                 alert('Usuario o contraseña incorrectos');
