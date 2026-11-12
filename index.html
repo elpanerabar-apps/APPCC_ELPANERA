@@ -366,6 +366,41 @@
             display: flex;
         }
 
+        /* ===== TOAST ===== */
+        #toastContainer {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            pointer-events: none;
+        }
+        .toast {
+            background: #2C2C2C;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 24px;
+            font-size: 14px;
+            font-family: 'Work Sans', sans-serif;
+            font-weight: 500;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.25s ease;
+            white-space: nowrap;
+            max-width: 90vw;
+            white-space: normal;
+            text-align: center;
+        }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.ok { border-left: 4px solid #27AE60; }
+        .toast.error { border-left: 4px solid #E8623A; }
+        .toast.warn { border-left: 4px solid #F39C12; }
+
         .modal-content {
             background: white;
             padding: 32px;
@@ -1691,6 +1726,9 @@
     </div>
 
     <!-- Import Modal -->
+    <!-- Toast container -->
+    <div id="toastContainer"></div>
+
     <div id="importModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -4437,10 +4475,10 @@
                 document.getElementById('formTemp').reset();
                 setDefaultDates();
                 renderTempTable();
-                alert('✅ Temperatura guardada');
+                toast('✅ Temperatura guardada');
             } catch (error) {
                 console.error('Error temperatura:', error);
-                alert('Error al guardar temperatura: ' + error.message);
+                toast('Error al guardar temperatura: ' + error.message, 'error');
             }
         }
 
@@ -4562,7 +4600,7 @@
             
             localStorage.setItem('appcc_firmas', JSON.stringify(firmas));
             closeModal('firmasModal');
-            alert('✅ Firmas guardadas correctamente');
+            toast('✅ Firmas guardadas correctamente');
         }
         
         // Inicializar firmas predeterminadas
@@ -4589,7 +4627,7 @@
                 .map(cb => cb.value);
             
             if (tareasSeleccionadas.length === 0) {
-                alert('⚠️ Selecciona al menos una tarea');
+                toast('⚠️ Selecciona al menos una tarea', 'warn');
                 return;
             }
             
@@ -4610,7 +4648,7 @@
             document.getElementById('tareasCheckboxes').innerHTML = '<p style="color: var(--warmgray);">Selecciona una frecuencia primero</p>';
             setDefaultDates();
             renderLimpTable();
-            alert('✅ ' + tareasSeleccionadas.length + ' tarea(s) de limpieza guardadas');
+            toast('✅ ' + tareasSeleccionadas.length + ' tarea(s) de limpieza guardadas');
         }
 
         function renderLimpTable() {
@@ -4763,10 +4801,10 @@
                 document.getElementById('ocrStatus').classList.add('hidden');
                 setDefaultDates();
                 renderRecTable();
-                alert('✅ Recepción guardada');
+                toast('✅ Recepción guardada');
             } catch (error) {
                 console.error('Error recepcion:', error);
-                alert('Error al guardar recepción: ' + error.message);
+                toast('Error al guardar recepción: ' + error.message, 'error');
             }
         }
 
@@ -4845,10 +4883,10 @@
                 document.getElementById('formCong').reset();
                 setDefaultDates();
                 renderCongTable();
-                alert('✅ Producto guardado en congelador');
+                toast('✅ Producto guardado en congelador');
             } catch (error) {
                 console.error('Error congelador:', error);
-                alert('Error al guardar en congelador: ' + error.message);
+                toast('Error al guardar en congelador: ' + error.message, 'error');
             }
         }
 
@@ -4862,7 +4900,7 @@
             const unidad = item.unidad || item['Unidad'] || '';
 
             if (cantidadRestante <= 0) {
-                alert('⚠️ Ya se sacó todo este producto del congelador.');
+                toast('⚠️ Ya se sacó todo este producto del congelador.', 'warn');
                 return;
             }
 
@@ -4875,11 +4913,11 @@
 
             const cantidadASacar = parseFloat(respuesta);
             if (isNaN(cantidadASacar) || cantidadASacar <= 0) {
-                alert('⚠️ Introduce una cantidad válida.');
+                toast('⚠️ Introduce una cantidad válida.', 'warn');
                 return;
             }
             if (cantidadASacar > cantidadRestante) {
-                alert(`⚠️ No puedes sacar más de ${cantidadRestante} ${unidad}.`);
+                toast(`⚠️ No puedes sacar más de ${cantidadRestante} ${unidad}.`, 'warn');
                 return;
             }
 
@@ -4906,13 +4944,13 @@
                 updateDashboard();
 
                 if (salidaCompleta) {
-                    alert(`✅ Salida completa registrada.\nSe sacaron ${cantidadASacar} ${unidad} de ${producto}.\n📦 Producto agotado.`);
+                    toast(`✅ Salida completa: ${cantidadASacar} ${unidad} de ${producto} agotado`);
                 } else {
                     const restante = cantidadTotal - nuevaCantidadSacada;
-                    alert(`✅ Salida parcial registrada.\nSacado: ${cantidadASacar} ${unidad}\nQueda: ${restante} ${unidad} de ${producto}.`);
+                    toast(`✅ Sacado: ${cantidadASacar} ${unidad} — Queda: ${restante} ${unidad} de ${producto}`);
                 }
             } catch (error) {
-                alert('Error al registrar salida: ' + error.message);
+                toast('Error al registrar salida: ' + error.message, 'error');
             }
         }
 
@@ -5084,10 +5122,10 @@
                 data.documentos.unshift(doc);
                 document.getElementById('formDoc').reset();
                 renderDocTable();
-                alert('✅ Documento guardado');
+                toast('✅ Documento guardado');
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al guardar documento: ' + error.message);
+                toast('Error al guardar documento: ' + error.message, 'error');
             }
         }
 
@@ -5095,7 +5133,7 @@
             const doc = data.documentos.find(d => String(d.id) === String(id));
             const enlace = doc && (doc.enlace || doc['enlace'] || doc['Enlace'] || '');
             if (!enlace) {
-                alert('Este documento no tiene enlace de Drive. Edítalo y añade el enlace.');
+                toast('Este documento no tiene enlace de Drive. Edítalo y añádelo.', 'warn');
                 return;
             }
             window.open(enlace, '_blank');
@@ -5160,10 +5198,10 @@
                 data.proveedores.push(inserted[0]);
                 document.getElementById('formProv').reset();
                 renderProvTable();
-                alert('✅ Proveedor guardado');
+                toast('✅ Proveedor guardado');
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error al guardar proveedor');
+                toast('Error al guardar proveedor', 'error');
             }
         }
 
@@ -5200,6 +5238,20 @@
             renderCongTable();
             renderDocTable();
             renderProvTable();
+        }
+
+        // Toast
+        function toast(msg, tipo = 'ok', duracion = 2800) {
+            const c = document.getElementById('toastContainer');
+            const t = document.createElement('div');
+            t.className = `toast ${tipo}`;
+            t.textContent = msg;
+            c.appendChild(t);
+            requestAnimationFrame(() => { requestAnimationFrame(() => t.classList.add('show')); });
+            setTimeout(() => {
+                t.classList.remove('show');
+                setTimeout(() => t.remove(), 300);
+            }, duracion);
         }
 
         // Modales
@@ -5717,7 +5769,7 @@
                 precioCafe: document.getElementById('pizPrecioCafe').value,
             };
             try { localStorage.setItem('paneraMenuSemana', JSON.stringify(menuSemana)); } catch(e){}
-            alert(`✅ Menú del ${dia} guardado en la planificación semanal`);
+            toast(`✅ Menú del ${dia} guardado en la semana`);
             renderWeekGrid();
         }
 
@@ -5766,7 +5818,7 @@
 
         async function generarTodasPizarras() {
             const dias = Object.keys(menuSemana);
-            if (!dias.length) { alert('No hay menús guardados en la semana'); return; }
+            if (!dias.length) { toast('No hay menús guardados en la semana', 'warn'); return; }
             for (const dia of dias) {
                 pizIrDia(dia);
                 await new Promise(r => setTimeout(r, 200));
@@ -5775,7 +5827,7 @@
                 descargarPizarra();
                 await new Promise(r => setTimeout(r, 400));
             }
-            alert(`✅ Descargadas ${dias.length} pizarras`);
+            toast(`✅ Descargadas ${dias.length} pizarras`);
         }
 
         function compartirWhatsApp(tipo) {
