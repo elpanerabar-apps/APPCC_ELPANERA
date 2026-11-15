@@ -1327,13 +1327,21 @@
                         <div class="form-field">
                             <label>Enlace Google Drive (opcional)</label>
                             <input type="url" id="docEnlace" placeholder="https://drive.google.com/file/d/...">
-                            <div style="margin-top:6px;font-size:12px;color:#888;">Pega el enlace del PDF desde Google Drive. <a href="https://drive.google.com/drive/folders/1Jxu8O3gSVyyIrSPlGZEoEqEj70vjfcZo" target="_blank" style="color:#e07b39;">📂 Abrir carpeta Drive</a></div>
+                            <div style="margin-top:6px;font-size:12px;color:#888;">Pega el enlace del PDF desde Google Drive. <a href="https://drive.google.com/drive/folders/1BxNyLSbnR34XgBXrz3BU6NkOvvYerTX9" target="_blank" style="color:#e07b39;">📂 Abrir carpeta APPCC Drive</a></div>
                         </div>
                         <button type="submit" class="btn">Guardar Documento</button>
                     </form>
                 </div>
+
+                <!-- Documentos obligatorios/opcionales fijos -->
                 <div class="card">
-                    <h2>Lista de Documentos</h2>
+                    <h2>📋 Documentación Requerida</h2>
+                    <div style="margin-bottom:10px;font-size:12px;color:#888;">Los documentos se suben a la <a href="https://drive.google.com/drive/folders/1BxNyLSbnR34XgBXrz3BU6NkOvvYerTX9" target="_blank" style="color:#e07b39;">📂 carpeta Drive APPCC</a> y se enlaza aquí.</div>
+                    <div id="docRequeridos"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Lista de Documentos registrados</h2>
                     <div id="docTable"></div>
                 </div>
             </div>
@@ -5169,7 +5177,57 @@
             window.open(enlace, '_blank');
         }
 
+        // Documentos requeridos fijos con estado de subida
+        const DOC_REQUERIDOS = [
+            // OBLIGATORIOS
+            { tipo: 'Licencia de Apertura',               obligatorio: true  },
+            { tipo: 'Plan de Autocontrol APPCC',           obligatorio: true  },
+            { tipo: 'Prevención de Riesgos Laborales',     obligatorio: true  },
+            { tipo: 'Diplomas Manipulador de Alimentos',   obligatorio: true  },
+            { tipo: 'Control de Plagas (empresa externa)', obligatorio: true  },
+            { tipo: 'Análisis de Agua',                    obligatorio: true  },
+            { tipo: 'Seguro de Responsabilidad Civil',     obligatorio: true  },
+            { tipo: 'Carta de Alérgenos',                  obligatorio: true  },
+            { tipo: 'Registro Sanitario',                  obligatorio: true  },
+            // OPCIONALES / RECOMENDADOS
+            { tipo: 'Contrato de mantenimiento equipos',   obligatorio: false },
+            { tipo: 'Fichas técnicas de productos',        obligatorio: false },
+            { tipo: 'Libro de visitas inspección',         obligatorio: false },
+            { tipo: 'Póliza seguro incendios',             obligatorio: false },
+        ];
+
+        function renderDocRequeridos() {
+            const el = document.getElementById('docRequeridos');
+            if (!el) return;
+
+            const rows = DOC_REQUERIDOS.map(doc => {
+                // Buscar si ya hay un documento registrado de este tipo
+                const registrado = data.documentos.find(d =>
+                    (d.tipo || d['Tipo'] || '').toLowerCase().includes(doc.tipo.toLowerCase().split(' ')[0].toLowerCase())
+                );
+                const enlace = registrado ? (registrado.enlace || registrado['Enlace'] || '') : '';
+                const estado = registrado
+                    ? (enlace ? `<a href="${enlace}" target="_blank" style="color:#27AE60;font-weight:700;">✅ Ver documento</a>`
+                              : `<span style="color:#F39C12;font-weight:600;">⚠️ Registrado sin enlace</span>`)
+                    : `<span style="color:#E8623A;font-weight:600;">📤 Pendiente de subir</span>`;
+                const badge = doc.obligatorio
+                    ? `<span style="background:#E8623A;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.04em;">OBLIGATORIO</span>`
+                    : `<span style="background:#9E8B7B;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;letter-spacing:.04em;">RECOMENDADO</span>`;
+                return `<tr>
+                    <td>${badge}</td>
+                    <td style="font-weight:600;">${doc.tipo}</td>
+                    <td>${estado}</td>
+                </tr>`;
+            }).join('');
+
+            el.innerHTML = `<table class="data-table">
+                <thead><tr><th></th><th>Documento</th><th>Estado</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        }
+
         function renderDocTable() {
+            renderDocRequeridos();
             const html = data.documentos.length ? `
                 <table class="data-table">
                     <thead>
