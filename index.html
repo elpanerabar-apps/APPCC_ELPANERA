@@ -1183,18 +1183,12 @@
                                 <input type="text" id="recCantidad" placeholder="Ej: 5 kg">
                             </div>
                         </div>
-                        <div class="form-row">
-                            <div class="form-field">
-                                <label>Precio (€)</label>
-                                <input type="number" id="recPrecio" step="0.01">
-                            </div>
-                            <div class="form-field">
-                                <label>Estado</label>
-                                <select id="recEstado">
-                                    <option value="Correcto">Correcto</option>
-                                    <option value="Incorrecto">Incorrecto</option>
-                                </select>
-                            </div>
+                        <div class="form-field">
+                            <label>Estado</label>
+                            <select id="recEstado">
+                                <option value="Correcto">Correcto</option>
+                                <option value="Incorrecto">Incorrecto</option>
+                            </select>
                         </div>
                         <div class="form-field">
                             <label>Observaciones</label>
@@ -4799,7 +4793,6 @@
                     
                     if (info.producto) document.getElementById('recProducto').value = info.producto;
                     if (info.cantidad) document.getElementById('recCantidad').value = info.cantidad;
-                    if (info.precio) document.getElementById('recPrecio').value = info.precio.replace(/[^\d.,]/g, '').replace(',', '.');
                     
                     document.getElementById('ocrStatus').textContent = '✅ Ticket procesado correctamente. Verifica los datos.';
                 } else {
@@ -4817,7 +4810,6 @@
         // Recepción
         async function addRecepcion(e) {
             e.preventDefault();
-            const precioVal = document.getElementById('recPrecio').value;
             const rec = {
                 id: Date.now(),
                 fecha: document.getElementById('recFecha').value,
@@ -4827,7 +4819,6 @@
                 proveedor: document.getElementById('recProveedor').value,
                 PROVEEDOR: document.getElementById('recProveedor').value,
                 cantidad: document.getElementById('recCantidad').value || '',
-                precio: precioVal || '',
                 estado: document.getElementById('recEstado').value,
                 ESTADO: document.getElementById('recEstado').value,
                 observaciones: document.getElementById('recObs').value || '',
