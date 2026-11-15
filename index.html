@@ -857,6 +857,20 @@
         .cart-tipo-icon { font-size:28px; display:block; margin-bottom:6px; }
         .cart-tipo-label { color:rgba(255,255,255,0.8); font-size:12px; font-weight:700; }
 
+        /* Selector de fotos */
+        .foto-selector { margin-bottom:16px; }
+        .foto-selector-label { color:rgba(255,255,255,0.6); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; display:block; }
+        .foto-cats { display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+        .foto-cat-btn { padding:5px 12px; border:1px solid rgba(255,255,255,0.2); border-radius:20px; background:none; color:rgba(255,255,255,0.5); font-size:11px; font-weight:700; cursor:pointer; transition:all .2s; }
+        .foto-cat-btn.active { border-color:#E8623A; background:rgba(232,98,58,0.2); color:#fff; }
+        .foto-thumbs { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; max-height:180px; overflow-y:auto; }
+        .foto-thumb { position:relative; aspect-ratio:1; border-radius:8px; overflow:hidden; cursor:pointer; border:2px solid transparent; transition:border .15s; }
+        .foto-thumb img { width:100%; height:100%; object-fit:cover; display:block; }
+        .foto-thumb.selected { border-color:#E8623A; }
+        .foto-thumb.selected::after { content:'✓'; position:absolute; top:3px; right:5px; color:#fff; font-size:14px; font-weight:900; text-shadow:0 0 4px #000; }
+        .foto-sin-fondo-btn { padding:8px 14px; border:1px dashed rgba(255,255,255,0.25); border-radius:20px; background:none; color:rgba(255,255,255,0.4); font-size:11px; cursor:pointer; display:flex; align-items:center; gap:6px; }
+        .foto-sin-fondo-btn.active { border-color:#E8623A; color:#E8623A; }
+
         /* ===== NORMATIVA ===== */
         .norm-bloque {
             border: 1px solid #EDE0D4;
@@ -1687,6 +1701,21 @@
                             <input id="cartHorLinea1" class="piz-input" placeholder="Horario 1 (ej: Lunes a Jueves: 6:00 a 15:00)" />
                             <input id="cartHorLinea2" class="piz-input" placeholder="Horario 2 (ej: Viernes: 6:00 a cierre)" />
                             <input id="cartHorLinea3" class="piz-input" placeholder="Horario 3 (opcional)" />
+                        </div>
+
+                        <!-- Selector de foto de fondo -->
+                        <div class="foto-selector piz-form-card">
+                            <span class="foto-selector-label">📸 Foto de fondo (opcional)</span>
+                            <div class="foto-cats">
+                                <button class="foto-cat-btn active" onclick="cartFotoCat(this,'comida')">🍢 Comida</button>
+                                <button class="foto-cat-btn" onclick="cartFotoCat(this,'desayunos')">☕ Desayunos</button>
+                                <button class="foto-cat-btn" onclick="cartFotoCat(this,'ambiente')">🌅 Ambiente</button>
+                                <button class="foto-cat-btn" onclick="cartFotoCat(this,'branding')">🏷️ Branding</button>
+                            </div>
+                            <div class="foto-thumbs" id="cartFotoGrid"></div>
+                            <div style="margin-top:8px;">
+                                <button class="foto-sin-fondo-btn active" id="btnSinFondo" onclick="cartSinFondo()">✖ Sin foto (pizarra negra)</button>
+                            </div>
                         </div>
 
                         <button class="piz-generate-btn" onclick="generarCartel()">🎨 Generar Cartel</button>
@@ -5940,6 +5969,63 @@
            CARTELERÍA — Canvas Generator
         ========================================================= */
         let cartTipoActual = 'cerrado';
+        let cartFotoSeleccionada = null; // null = sin foto
+
+        // Catálogo de fotos por categoría
+        const FOTOS_CATALOG = {
+            comida: [
+                'bocadillos-lomo-01','bocadillos-pollo-01','pincho-pollo-pimiento-01','pincho-pollo-pimiento-02',
+                'bocadillos-mixtos-01','bocadillos-barra-01','bocadillos-barra-02','tortilla-01','tortilla-entera-01',
+                'tortilla-entera-02','tortilla-entera-03','pincho-chicharron-pimiento-01','pincho-chicharron-pimiento-02',
+                'bocadillo-pollo-queso-01','huevo-bacon-bocadillo-01','tortilla-con-pan-01','tortilla-porcion-01',
+                'tortilla-porcion-02','bocadillo-mini-cafe-01','rabo-toro-tostada-01','bocadillos-cafe-barra-01',
+                'bocadillo-pollo-pimiento-02','huevo-bacon-detalle-01'
+            ],
+            desayunos: [
+                'cafe-zumo-palmera-01','cafe-zumo-croissant-01','cafe-zumo-croissant-02','cafe-chocolate-corazon-01',
+                'cafe-solo-pared-bn-01','cafe-azucar-01','cafe-azucar-02','dos-cafes-01',
+                'desayuno-completo-bandeja-01','cafe-solo-01'
+            ],
+            ambiente: ['atardecer-fachada-01'],
+            branding: ['chapa-logo-01','pizarra-navidad-01','cesta-regalo-brujula-01','cesta-regalo-cervezas-01']
+        };
+
+        let cartCatActual = 'comida';
+
+        function cartFotoCat(btn, cat) {
+            document.querySelectorAll('.foto-cat-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            cartCatActual = cat;
+            renderFotoGrid(cat);
+        }
+
+        function renderFotoGrid(cat) {
+            const grid = document.getElementById('cartFotoGrid');
+            const fotos = FOTOS_CATALOG[cat] || [];
+            grid.innerHTML = fotos.map(nombre => {
+                const ruta = `assets/fotos/${cat}/${nombre}.jpg`;
+                const sel = cartFotoSeleccionada === ruta ? 'selected' : '';
+                return `<div class="foto-thumb ${sel}" onclick="cartSelFoto('${ruta}',this)" title="${nombre}">
+                    <img src="${ruta}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                </div>`;
+            }).join('');
+        }
+
+        function cartSelFoto(ruta, el) {
+            cartFotoSeleccionada = ruta;
+            document.querySelectorAll('.foto-thumb').forEach(t=>t.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('btnSinFondo').classList.remove('active');
+        }
+
+        function cartSinFondo() {
+            cartFotoSeleccionada = null;
+            document.querySelectorAll('.foto-thumb').forEach(t=>t.classList.remove('selected'));
+            document.getElementById('btnSinFondo').classList.add('active');
+        }
+
+        // Inicializar grid al cargar
+        document.addEventListener('DOMContentLoaded', () => { renderFotoGrid('comida'); });
 
         function cartSelTipo(btn) {
             document.querySelectorAll('.cart-tipo-btn').forEach(b => b.classList.remove('active'));
@@ -5957,33 +6043,67 @@
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            dibujarMarco(ctx, W, H);
+            const dibujarContenido = () => {
+                dibujarMarco(ctx, W, H);
 
-            // Cabecera común: taza + nombre
-            ctx.font = '48px serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('☕', 68, 118);
-            chalkText(ctx, 'el Panera Bar', W/2+10, 118, 'rgba(255,255,255,0.95)', 'italic bold 50px Georgia, serif');
-            // Estrellas decorativas
-            ['#F07040','rgba(255,255,255,0.4)','#F07040'].forEach((c,i) => {
-                chalkText(ctx, '✦', [240,460,660,790][i]||240+i*170, 80, c, '22px serif');
-            });
-            chalkLine(ctx, W/2-190, 132, W/2+210, 132, 'rgba(255,255,255,0.5)', 2);
+                // Cabecera común: taza + nombre
+                ctx.font = '48px serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('☕', 68, 118);
+                chalkText(ctx, 'el Panera Bar', W/2+10, 118, 'rgba(255,255,255,0.95)', 'italic bold 50px Georgia, serif');
+                // Estrellas decorativas
+                ['#F07040','rgba(255,255,255,0.4)','#F07040'].forEach((c,i) => {
+                    chalkText(ctx, '✦', [240,460,660,790][i]||240+i*170, 80, c, '22px serif');
+                });
+                chalkLine(ctx, W/2-190, 132, W/2+210, 132, 'rgba(255,255,255,0.5)', 2);
 
-            if (cartTipoActual === 'cerrado') {
-                dibujarCartelCerrado(ctx, W, H);
-            } else if (cartTipoActual === 'vacaciones') {
-                dibujarCartelVacaciones(ctx, W, H);
-            } else if (cartTipoActual === 'pinchos') {
-                dibujarCartelPinchos(ctx, W, H);
-            } else if (cartTipoActual === 'horario') {
-                dibujarCartelHorario(ctx, W, H);
+                if (cartTipoActual === 'cerrado') {
+                    dibujarCartelCerrado(ctx, W, H);
+                } else if (cartTipoActual === 'vacaciones') {
+                    dibujarCartelVacaciones(ctx, W, H);
+                } else if (cartTipoActual === 'pinchos') {
+                    dibujarCartelPinchos(ctx, W, H);
+                } else if (cartTipoActual === 'horario') {
+                    dibujarCartelHorario(ctx, W, H);
+                }
+
+                chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.28)', '22px Georgia, serif');
+
+                document.getElementById('cartPreviewWrap').style.display = 'block';
+                lastCartCanvas = canvas;
+            };
+
+            if (cartFotoSeleccionada) {
+                // Fondo con foto real + overlay oscuro
+                const img = new Image();
+                img.onload = () => {
+                    // Cubrir canvas manteniendo proporción (cover)
+                    const iR = img.width / img.height;
+                    const cR = W / H;
+                    let sx=0,sy=0,sw=img.width,sh=img.height;
+                    if (iR > cR) { sw = img.height*cR; sx=(img.width-sw)/2; }
+                    else          { sh = img.width/cR; sy=(img.height-sh)/2; }
+                    ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
+
+                    // Overlay oscuro para legibilidad del texto de pizarra
+                    ctx.fillStyle = 'rgba(10,10,10,0.62)';
+                    ctx.fillRect(0, 0, W, H);
+
+                    dibujarContenido();
+                };
+                img.onerror = () => {
+                    // Si falla la carga, fondo negro pizarra
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, W, H);
+                    dibujarContenido();
+                };
+                img.src = cartFotoSeleccionada;
+            } else {
+                // Sin foto: fondo pizarra negro estándar
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(0, 0, W, H);
+                dibujarContenido();
             }
-
-            chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.28)', '22px Georgia, serif');
-
-            document.getElementById('cartPreviewWrap').style.display = 'block';
-            lastCartCanvas = canvas;
         }
 
         function dibujarCartelCerrado(ctx, W, H) {
