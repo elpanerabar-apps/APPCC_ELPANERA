@@ -5656,6 +5656,86 @@
             }
         }
 
+        // ── CHALK HELPERS ─────────────────────────────────────────────
+        // Dibuja texto con efecto tiza: ligeramente irregular y con ruido
+        function chalkText(ctx, text, x, y, color, font, align) {
+            ctx.save();
+            ctx.font = font;
+            ctx.textAlign = align || 'center';
+            // Sombra suave para dar volumen
+            ctx.shadowColor = 'rgba(0,0,0,0.5)';
+            ctx.shadowBlur = 4;
+            // Capa base
+            ctx.fillStyle = color;
+            ctx.globalAlpha = 0.92;
+            ctx.fillText(text, x, y);
+            // Capa de ruido (simula tiza irregular)
+            ctx.globalAlpha = 0.18;
+            ctx.fillStyle = '#fff';
+            ctx.fillText(text, x+1, y-1);
+            ctx.globalAlpha = 1;
+            ctx.shadowBlur = 0;
+            ctx.restore();
+        }
+
+        // Línea estilo tiza (irregular)
+        function chalkLine(ctx, x1, y1, x2, y2, color, lw) {
+            ctx.save();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lw || 2;
+            ctx.globalAlpha = 0.7;
+            ctx.setLineDash([6, 3]);
+            ctx.lineDashOffset = Math.random()*10;
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1;
+            ctx.restore();
+        }
+
+        // Marco pizarra común (madera gruesa + doble borde tiza)
+        function dibujarMarco(ctx, W, H) {
+            // Pizarra verde oscuro auténtico
+            ctx.fillStyle = '#1a2f1a';
+            ctx.fillRect(0,0,W,H);
+            // Textura con gradiente sutil
+            const bg = ctx.createLinearGradient(0,0,W,H);
+            bg.addColorStop(0,'rgba(10,30,10,0.5)');
+            bg.addColorStop(0.5,'rgba(20,40,20,0.3)');
+            bg.addColorStop(1,'rgba(5,25,5,0.6)');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0,0,W,H);
+            // Puntitos de tiza aleatorios (textura)
+            ctx.save();
+            for(let i=0; i<180; i++){
+                ctx.globalAlpha = Math.random()*0.06;
+                ctx.fillStyle='#fff';
+                ctx.fillRect(Math.random()*W, Math.random()*H, Math.random()*3+1, Math.random()*2+1);
+            }
+            ctx.globalAlpha=1; ctx.restore();
+            // Marco madera gruesa
+            const mw = 42;
+            const mg = ctx.createLinearGradient(0,0,mw,0);
+            mg.addColorStop(0,'#3E2208'); mg.addColorStop(0.3,'#7C4A1E'); mg.addColorStop(0.6,'#A0633A'); mg.addColorStop(1,'#3E2208');
+            ctx.fillStyle = mg;
+            ctx.fillRect(0,0,W,mw); ctx.fillRect(0,H-mw,W,mw);
+            const mv = ctx.createLinearGradient(0,0,mw,0);
+            mv.addColorStop(0,'#3E2208'); mv.addColorStop(0.4,'#8B5728'); mv.addColorStop(0.7,'#A0633A'); mv.addColorStop(1,'#3E2208');
+            ctx.fillStyle = mv;
+            ctx.fillRect(0,0,mw,H); ctx.fillRect(W-mw,0,mw,H);
+            // Veta madera
+            ctx.save(); ctx.globalAlpha=0.12; ctx.strokeStyle='#000'; ctx.lineWidth=1;
+            for(let i=0; i<8; i++){
+                ctx.beginPath(); ctx.moveTo(mw+i*4,0); ctx.lineTo(mw+i*4,mw); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0,mw+i*4); ctx.lineTo(mw,mw+i*4); ctx.stroke();
+            }
+            ctx.restore();
+            // Borde interior doble estilo tiza
+            ctx.strokeStyle = 'rgba(255,255,255,0.55)'; ctx.lineWidth = 3;
+            ctx.strokeRect(mw+8, mw+8, W-2*(mw+8), H-2*(mw+8));
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)'; ctx.lineWidth = 1.5;
+            ctx.strokeRect(mw+14, mw+14, W-2*(mw+14), H-2*(mw+14));
+        }
+
         function generarPizarra() {
             const dia = pizCurrentDay;
             const primero = document.getElementById('pizPrimero').value.trim();
@@ -5673,163 +5753,91 @@
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            // Fondo negro pizarra
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0,0,W,H);
+            dibujarMarco(ctx, W, H);
 
-            // Textura pizarra (gradiente sutil)
-            const grad = ctx.createLinearGradient(0,0,W,H);
-            grad.addColorStop(0,'rgba(40,40,50,0.6)');
-            grad.addColorStop(0.5,'rgba(20,20,30,0.8)');
-            grad.addColorStop(1,'rgba(30,30,40,0.6)');
-            ctx.fillStyle = grad;
-            ctx.fillRect(0,0,W,H);
+            // ── CABECERA ──────────────────────────────────────────────
+            // Nombre bar — script cursiva grande
+            chalkText(ctx, 'el Panera Bar', W/2, 118, 'rgba(255,255,255,0.95)', 'italic bold 54px Georgia, serif');
+            // Línea tiza bajo el nombre
+            chalkLine(ctx, W/2-200, 132, W/2+200, 132, 'rgba(255,255,255,0.6)', 2);
 
-            // Marco madera
-            const marcoGrad = ctx.createLinearGradient(0,0,30,0);
-            marcoGrad.addColorStop(0,'#5D4037');
-            marcoGrad.addColorStop(0.5,'#8D6E63');
-            marcoGrad.addColorStop(1,'#5D4037');
-            ctx.fillStyle = marcoGrad;
-            ctx.fillRect(0,0,W,30);
-            ctx.fillRect(0,H-30,W,30);
-            ctx.fillRect(0,0,30,H);
-            ctx.fillRect(W-30,0,30,H);
-            // Borde interior dorado
-            ctx.strokeStyle = '#C8A96E';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(35,35,W-70,H-70);
+            // Día — muy grande, terracota, estilo chalk
+            chalkText(ctx, `✦  ${dia.toUpperCase()}  ✦`, W/2, 215, '#F07040', 'bold 72px Georgia, serif');
+            // Subrayado doble estilo tiza
+            chalkLine(ctx, 80, 230, W-80, 230, '#F07040', 3);
+            chalkLine(ctx, 80, 237, W-80, 237, 'rgba(240,112,64,0.35)', 2);
 
-            // Nombre del bar arriba (estilo manuscrito/cursiva)
-            ctx.textAlign = 'center';
-            ctx.fillStyle = 'rgba(255,255,255,0.9)';
-            ctx.font = 'italic bold 42px Georgia, serif';
-            ctx.fillText('el Panera Bar', W/2, 110);
-            // Línea decorativa terracota
-            ctx.strokeStyle = '#E8623A';
-            ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(W/2-160, 125); ctx.lineTo(W/2+160, 125); ctx.stroke();
+            let y = 295;
+            const lineH = 70;
+            const lineH2 = 60;
 
-            // Día de la semana — estilo chalk naranja
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 58px Georgia, serif';
-            ctx.fillText(`— ${dia.toUpperCase()} —`, W/2, 200);
-
-            // Separador
-            ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath(); ctx.moveTo(80,220); ctx.lineTo(W-80,220); ctx.stroke();
-
-            let y = 270;
-            const lineH = 60;
-            const lineH2 = 50;
-
-            // Función helper para dibujar línea de plato
-            function drawPlato(num, numColor, texto, fontSize) {
+            // Función helper chalk para plato
+            function drawPlatoChalk(num, texto, fontSize) {
                 if (!texto) return;
-                ctx.fillStyle = numColor;
-                ctx.font = `bold ${fontSize||38}px Georgia, serif`;
-                ctx.textAlign = 'left';
-                ctx.fillText(num, 60, y);
-                ctx.fillStyle = '#fff';
-                ctx.font = `${fontSize||38}px Georgia, serif`;
-                // Ajustar longitud
-                let txt = `_ ${texto}`;
-                while (ctx.measureText(txt).width > W-180 && fontSize > 22) { fontSize--; ctx.font = `${fontSize}px Georgia, serif`; }
-                ctx.fillText(txt, 115, y);
-                ctx.textAlign = 'center';
-            }
-
-            // 1er plato
-            if (primero) {
-                drawPlato('1)', '#E8623A', primero, 42);
-                // Subrayado terracota
-                ctx.strokeStyle = '#E8623A';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(60, y+8); ctx.lineTo(W-60, y+8); ctx.stroke();
-                y += lineH + 15;
-            }
-
-            // 2do platos
-            if (segundo1||segundo2||segundo3||postre) {
-                ctx.fillStyle = '#E8623A';
-                ctx.font = 'bold 42px Georgia, serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('2)', 60, y);
-                ctx.textAlign = 'center';
-                y += lineH2;
-            }
-            const seg2 = [segundo1,segundo2,segundo3,postre].filter(Boolean);
-            seg2.forEach(s => {
-                ctx.fillStyle = '#fff';
-                let fs = 36;
+                // Número grande
+                chalkText(ctx, num, 68, y, '#F07040', `bold ${fontSize+8}px Georgia, serif`, 'left');
+                // Texto plato
+                let fs = fontSize;
                 ctx.font = `${fs}px Georgia, serif`;
-                let txt = `_ ${s}`;
-                while (ctx.measureText(txt).width > W-120 && fs > 22) { fs--; ctx.font = `${fs}px Georgia, serif`; }
-                ctx.textAlign = 'left';
-                ctx.fillText(txt, 90, y);
-                ctx.textAlign = 'center';
-                y += lineH2;
-            });
-            if (seg2.length) {
-                ctx.strokeStyle = '#E8623A';
-                ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(60, y+2); ctx.lineTo(W-60, y+2); ctx.stroke();
-                y += 20;
+                let txt = texto;
+                while (ctx.measureText(txt).width > W-200 && fs > 24) { fs--; ctx.font = `${fs}px Georgia, serif`; }
+                chalkText(ctx, txt, 125, y, 'rgba(255,255,255,0.95)', `${fs}px Georgia, serif`, 'left');
             }
 
-            // 3er platos
-            if (tercero1||tercero2) {
-                ctx.fillStyle = '#E8623A';
-                ctx.font = 'bold 42px Georgia, serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('3)', 60, y);
-                ctx.textAlign = 'center';
-                y += lineH2;
-                [tercero1,tercero2].filter(Boolean).forEach(s => {
-                    ctx.fillStyle = '#fff';
-                    let fs = 36;
-                    ctx.font = `${fs}px Georgia, serif`;
-                    let txt = `_ ${s}`;
-                    while (ctx.measureText(txt).width > W-120 && fs > 22) { fs--; ctx.font = `${fs}px Georgia, serif`; }
-                    ctx.textAlign = 'left';
-                    ctx.fillText(txt, 90, y);
-                    ctx.textAlign = 'center';
+            // ── 1er PLATO ──────────────────────────────────────────────
+            if (primero) {
+                drawPlatoChalk('1.', primero, 48);
+                chalkLine(ctx, 60, y+12, W-60, y+12, '#F07040', 2);
+                y += lineH + 10;
+            }
+
+            // ── 2do PLATO ──────────────────────────────────────────────
+            const seg2 = [segundo1,segundo2,segundo3,postre].filter(Boolean);
+            if (seg2.length) {
+                chalkText(ctx, '2.', 68, y, '#F07040', 'bold 56px Georgia, serif', 'left');
+                y += lineH2 - 5;
+                seg2.forEach(s => {
+                    // Guión decorativo + texto
+                    chalkText(ctx, '—', 78, y, 'rgba(240,112,64,0.7)', '32px Georgia, serif', 'left');
+                    let fs = 44; ctx.font = `${fs}px Georgia, serif`;
+                    while(ctx.measureText(s).width > W-200 && fs>24){fs--;ctx.font=`${fs}px Georgia, serif`;}
+                    chalkText(ctx, s, 118, y, 'rgba(255,255,255,0.93)', `${fs}px Georgia, serif`, 'left');
+                    y += lineH2;
+                });
+                chalkLine(ctx, 60, y, W-60, y, '#F07040', 2);
+                y += 22;
+            }
+
+            // ── 3er PLATO ──────────────────────────────────────────────
+            const seg3 = [tercero1,tercero2].filter(Boolean);
+            if (seg3.length) {
+                chalkText(ctx, '3.', 68, y, '#F07040', 'bold 56px Georgia, serif', 'left');
+                y += lineH2 - 5;
+                seg3.forEach(s => {
+                    chalkText(ctx, '—', 78, y, 'rgba(240,112,64,0.7)', '32px Georgia, serif', 'left');
+                    let fs = 44; ctx.font = `${fs}px Georgia, serif`;
+                    while(ctx.measureText(s).width > W-200 && fs>24){fs--;ctx.font=`${fs}px Georgia, serif`;}
+                    chalkText(ctx, s, 118, y, 'rgba(255,255,255,0.93)', `${fs}px Georgia, serif`, 'left');
                     y += lineH2;
                 });
             }
 
-            // Separador antes de precios
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-            ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(60,H-230); ctx.lineTo(W-60,H-230); ctx.stroke();
+            // ── ZONA PRECIO ──────────────────────────────────────────
+            const priceY = H - 240;
+            chalkLine(ctx, 60, priceY, W-60, priceY, 'rgba(255,255,255,0.4)', 2);
 
-            // Incluye
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'italic 30px Georgia, serif';
-            ctx.textAlign = 'left';
-            ctx.fillText('Pan, Postre', 60, H-190);
-            ctx.fillStyle = '#fff';
-            ctx.fillText('1 Refresco o 1 Cerveza', 60, H-152);
-            ctx.fillStyle = 'rgba(255,255,255,0.65)';
-            ctx.font = 'italic 26px Georgia, serif';
-            ctx.fillText('Agua, Vino y Casera', 60, H-118);
+            // Columna izquierda: incluye
+            chalkText(ctx, 'Pan · Postre', 68, priceY+48, '#F07040', 'italic bold 32px Georgia, serif', 'left');
+            chalkText(ctx, '1 Refresco o 1 Cerveza', 68, priceY+86, 'rgba(255,255,255,0.88)', '30px Georgia, serif', 'left');
+            chalkText(ctx, 'Agua · Vino · Casera', 68, priceY+120, 'rgba(255,255,255,0.55)', 'italic 26px Georgia, serif', 'left');
 
-            // Precios
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 56px Georgia, serif';
-            ctx.textAlign = 'right';
-            ctx.fillText(precio, W-60, H-170);
-            ctx.font = 'italic 26px Georgia, serif';
-            ctx.fillText('Con Café', W-60, H-128);
-            ctx.font = 'bold 48px Georgia, serif';
-            ctx.fillText(precioCafe, W-60, H-85);
+            // Columna derecha: precio grande
+            chalkText(ctx, precio, W-60, priceY+58, '#F07040', 'bold 72px Georgia, serif', 'right');
+            chalkText(ctx, 'Con Café', W-60, priceY+100, 'rgba(255,255,255,0.6)', 'italic 26px Georgia, serif', 'right');
+            chalkText(ctx, precioCafe, W-60, priceY+140, 'rgba(255,180,140,0.95)', 'bold 54px Georgia, serif', 'right');
 
             // Pie
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.font = '20px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Lugo de Llanera · Asturias', W/2, H-50);
+            chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.3)', '22px Georgia, serif');
 
             document.getElementById('pizPreviewWrap').style.display = 'block';
             lastPizCanvas = canvas;
@@ -5949,39 +5957,18 @@
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
 
-            // Fondo negro pizarra
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0,0,W,H);
-            const bg = ctx.createLinearGradient(0,0,W,H);
-            bg.addColorStop(0,'rgba(40,40,50,0.7)');
-            bg.addColorStop(1,'rgba(20,20,30,0.9)');
-            ctx.fillStyle = bg;
-            ctx.fillRect(0,0,W,H);
+            dibujarMarco(ctx, W, H);
 
-            // Marco madera
-            const mg = ctx.createLinearGradient(0,0,30,0);
-            mg.addColorStop(0,'#5D4037'); mg.addColorStop(0.5,'#8D6E63'); mg.addColorStop(1,'#5D4037');
-            ctx.fillStyle = mg;
-            ctx.fillRect(0,0,W,30); ctx.fillRect(0,H-30,W,30);
-            ctx.fillRect(0,0,30,H); ctx.fillRect(W-30,0,30,H);
-            ctx.strokeStyle = '#C8A96E'; ctx.lineWidth = 3;
-            ctx.strokeRect(35,35,W-70,H-70);
-
-            // Logo
-            ctx.textAlign = 'center';
-            // Icono taza
-            ctx.font = '52px serif';
-            ctx.fillText('☕', 100, 115);
-            // Nombre
-            ctx.fillStyle = 'rgba(255,255,255,0.95)';
-            ctx.font = 'italic bold 44px Georgia, serif';
-            ctx.fillText('el Panera Bar', W/2, 110);
-            ctx.strokeStyle = '#E8623A'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(W/2-170, 125); ctx.lineTo(W/2+170, 125); ctx.stroke();
-            // Destellos decorativos
-            ctx.fillStyle = '#E8623A';
-            ctx.font = '20px serif';
-            [260,480,620,750].forEach(x => ctx.fillText('✦', x, 80));
+            // Cabecera común: taza + nombre
+            ctx.font = '48px serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('☕', 68, 118);
+            chalkText(ctx, 'el Panera Bar', W/2+10, 118, 'rgba(255,255,255,0.95)', 'italic bold 50px Georgia, serif');
+            // Estrellas decorativas
+            ['#F07040','rgba(255,255,255,0.4)','#F07040'].forEach((c,i) => {
+                chalkText(ctx, '✦', [240,460,660,790][i]||240+i*170, 80, c, '22px serif');
+            });
+            chalkLine(ctx, W/2-190, 132, W/2+210, 132, 'rgba(255,255,255,0.5)', 2);
 
             if (cartTipoActual === 'cerrado') {
                 dibujarCartelCerrado(ctx, W, H);
@@ -5993,11 +5980,7 @@
                 dibujarCartelHorario(ctx, W, H);
             }
 
-            // Pie
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.font = '20px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Lugo de Llanera · Asturias', W/2, H-50);
+            chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.28)', '22px Georgia, serif');
 
             document.getElementById('cartPreviewWrap').style.display = 'block';
             lastCartCanvas = canvas;
@@ -6007,45 +5990,32 @@
             const dia = document.getElementById('cartCerradoDia').value || 'Mañana';
             const msg = document.getElementById('cartCerradoMsg').value || '¡Os esperamos pronto! ❤️';
 
-            // Banda roja "Mañana"
-            ctx.fillStyle = '#C0392B';
+            // "HOY" o día — grande, terracota
+            chalkText(ctx, dia.toUpperCase(), W/2, 230, '#F07040', 'bold 80px Georgia, serif');
+            chalkLine(ctx, 100, 248, W-100, 248, '#F07040', 3);
+
+            // CERRADO — enorme, efecto pizarra
+            // Fondo degradado cálido para el bloque CERRADO
+            const rg = ctx.createLinearGradient(80,290,80,500);
+            rg.addColorStop(0,'rgba(180,30,30,0.18)');
+            rg.addColorStop(1,'rgba(100,10,10,0.08)');
+            ctx.fillStyle = rg;
             ctx.beginPath();
-            ctx.roundRect ? ctx.roundRect(60, 180, W-120, 100, 12) : ctx.rect(60,180,W-120,100);
+            if(ctx.roundRect) ctx.roundRect(80,290,W-160,210,20); else ctx.rect(80,290,W-160,210);
             ctx.fill();
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 56px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(dia.toUpperCase(), W/2, 248);
 
-            // Cartel CERRADO colgante
-            ctx.fillStyle = '#8B4513';
-            ctx.fillRect(W/2-10, 320, 20, 80);
-            ctx.fillRect(W/2-10, 320, 20, 5);
-            // Fondo cartel
-            ctx.fillStyle = '#F5F5DC';
-            ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 20;
-            ctx.beginPath();
-            ctx.roundRect ? ctx.roundRect(100, 395, W-200, 220, 16) : ctx.rect(100,395,W-200,220);
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            // Texto CERRADO
-            ctx.fillStyle = '#1a1a1a';
-            ctx.font = 'bold 90px Georgia, serif';
-            ctx.fillText('CERRADO', W/2, 495);
-            // Subrayado rojo
-            ctx.strokeStyle = '#C0392B'; ctx.lineWidth = 5;
-            ctx.beginPath(); ctx.moveTo(120,510); ctx.lineTo(W-120,510); ctx.stroke();
-            ctx.strokeStyle = '#00BCD4'; ctx.lineWidth = 4;
-            ctx.beginPath(); ctx.moveTo(120,530); ctx.lineTo(W-120,530); ctx.stroke();
+            chalkText(ctx, 'CERRADO', W/2, 435, 'rgba(255,255,255,0.97)', 'bold 110px Georgia, serif');
+            // Subrayado doble dramático
+            chalkLine(ctx, 80, 455, W-80, 455, '#F07040', 4);
+            chalkLine(ctx, 100, 465, W-100, 465, 'rgba(240,112,64,0.35)', 2);
 
-            // Mensaje pie
-            ctx.fillStyle = '#fff';
-            ctx.font = 'italic 36px Georgia, serif';
-            ctx.fillText(msg, W/2, 700);
+            // Mensaje
+            chalkText(ctx, msg, W/2, 580, 'rgba(255,255,255,0.88)', 'italic 42px Georgia, serif');
 
-            // Corazón rojo decorativo
-            ctx.font = '50px serif';
-            ctx.fillText('❤️', W/2, 790);
+            // Decoración
+            ctx.font = '58px serif'; ctx.textAlign='center';
+            ctx.fillText('❤️', W/2, 700);
+            chalkLine(ctx, W/2-80, 730, W/2+80, 730, 'rgba(255,255,255,0.2)', 1);
         }
 
         function dibujarCartelVacaciones(ctx, W, H) {
@@ -6053,35 +6023,36 @@
             const hasta = document.getElementById('cartVacHasta').value || '';
             const msg = document.getElementById('cartVacMsg').value || '¡Hasta pronto! ❤️';
 
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 60px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('🏖️ VACACIONES 🏖️', W/2, 230);
+            // VACACIONES — grande y llamativo
+            ctx.font = '58px serif'; ctx.textAlign='center';
+            ctx.fillText('🏖️', W/2-240, 230);
+            ctx.fillText('🏖️', W/2+240, 230);
+            chalkText(ctx, 'VACACIONES', W/2, 240, '#F07040', 'bold 90px Georgia, serif');
+            chalkLine(ctx, 80, 258, W-80, 258, '#F07040', 4);
+            chalkLine(ctx, 100, 268, W-100, 268, 'rgba(240,112,64,0.3)', 2);
 
-            ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(80,255); ctx.lineTo(W-80,255); ctx.stroke();
-
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.font = '32px Georgia, serif';
-            ctx.fillText('Estamos de descanso', W/2, 320);
+            chalkText(ctx, 'Estamos de descanso', W/2, 335, 'rgba(255,255,255,0.75)', '36px Georgia, serif');
 
             if (desde||hasta) {
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 36px Georgia, serif';
-                ctx.fillText(`Del ${desde} al ${hasta}`, W/2, 400);
+                // Bloque de fechas destacado
+                const fg = ctx.createLinearGradient(80,360,80,440);
+                fg.addColorStop(0,'rgba(240,112,64,0.18)');
+                fg.addColorStop(1,'rgba(240,112,64,0.05)');
+                ctx.fillStyle=fg;
+                ctx.beginPath();
+                if(ctx.roundRect) ctx.roundRect(80,360,W-160,80,16); else ctx.rect(80,360,W-160,80);
+                ctx.fill();
+                chalkText(ctx, `Del ${desde}  al  ${hasta}`, W/2, 412, 'rgba(255,255,255,0.97)', 'bold 42px Georgia, serif');
             }
 
-            ctx.fillStyle = 'rgba(255,255,255,0.5)';
-            ctx.font = 'italic 28px Georgia, serif';
-            ctx.fillText('Regresamos con más energía', W/2, 480);
-            ctx.fillText('y mejor humor ☕', W/2, 525);
+            chalkText(ctx, 'Regresamos con más energía', W/2, 510, 'rgba(255,255,255,0.55)', 'italic 30px Georgia, serif');
+            chalkText(ctx, 'y mejor humor ☕', W/2, 555, 'rgba(255,255,255,0.55)', 'italic 30px Georgia, serif');
 
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'italic bold 38px Georgia, serif';
-            ctx.fillText(msg, W/2, 640);
+            chalkLine(ctx, 150, 590, W-150, 590, 'rgba(255,255,255,0.2)', 1);
+            chalkText(ctx, msg, W/2, 660, '#F07040', 'italic bold 46px Georgia, serif');
 
-            ctx.font = '48px serif';
-            ctx.fillText('🌴☀️🌊', W/2, 730);
+            ctx.font = '52px serif'; ctx.textAlign='center';
+            ctx.fillText('🌴 ☀️ 🌊', W/2, 760);
         }
 
         function dibujarCartelPinchos(ctx, W, H) {
@@ -6092,38 +6063,26 @@
             const precio = document.getElementById('cartPinchoPrecio').value.trim() || '1,50 €';
             const pinchos = [p1,p2,p3,p4].filter(Boolean);
 
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 56px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('🍢 PINCHOS DEL DÍA', W/2, 220);
-            ctx.strokeStyle = '#E8623A'; ctx.lineWidth = 3;
-            ctx.beginPath(); ctx.moveTo(80,240); ctx.lineTo(W-80,240); ctx.stroke();
+            ctx.font = '52px serif'; ctx.textAlign='center'; ctx.fillText('🍢', W/2-280, 230);
+            ctx.fillText('🍢', W/2+280, 230);
+            chalkText(ctx, 'PINCHOS', W/2, 220, '#F07040', 'bold 90px Georgia, serif');
+            chalkText(ctx, 'DEL DÍA', W/2, 282, 'rgba(255,255,255,0.88)', 'bold 56px Georgia, serif');
+            chalkLine(ctx, 80, 300, W-80, 300, '#F07040', 4);
+            chalkLine(ctx, 100, 310, W-100, 310, 'rgba(240,112,64,0.3)', 2);
 
-            let y = 320;
+            let y = 390;
             pinchos.forEach(p => {
-                ctx.fillStyle = '#E8623A';
-                ctx.font = 'bold 32px Georgia, serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('•', 90, y);
-                ctx.fillStyle = '#fff';
-                ctx.font = '34px Georgia, serif';
-                let txt = p, fs = 34;
-                while (ctx.measureText(txt).width > W-180 && fs>22) { fs--; ctx.font=`${fs}px Georgia, serif`; }
-                ctx.fillText(txt, 115, y);
-                ctx.textAlign = 'center';
-                y += 70;
+                chalkText(ctx, '✦', 80, y, '#F07040', 'bold 28px Georgia, serif', 'left');
+                let fs = 46; ctx.font=`${fs}px Georgia, serif`;
+                while(ctx.measureText(p).width > W-180 && fs>26){fs--;ctx.font=`${fs}px Georgia, serif`;}
+                chalkText(ctx, p, 118, y, 'rgba(255,255,255,0.95)', `${fs}px Georgia, serif`, 'left');
+                chalkLine(ctx, 68, y+14, W-68, y+14, 'rgba(255,255,255,0.12)', 1);
+                y += 72;
             });
 
-            // Precio
-            ctx.strokeStyle = 'rgba(255,255,255,0.25)'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(80, y+20); ctx.lineTo(W-80, y+20); ctx.stroke();
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 52px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText(precio, W/2, y+90);
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.font = 'italic 26px Georgia, serif';
-            ctx.fillText('la unidad', W/2, y+130);
+            chalkLine(ctx, 80, y+10, W-80, y+10, 'rgba(255,255,255,0.3)', 2);
+            chalkText(ctx, precio, W/2, y+90, '#F07040', 'bold 80px Georgia, serif');
+            chalkText(ctx, 'la unidad', W/2, y+140, 'rgba(255,255,255,0.6)', 'italic 30px Georgia, serif');
         }
 
         function dibujarCartelHorario(ctx, W, H) {
@@ -6133,52 +6092,39 @@
             const l3 = document.getElementById('cartHorLinea3').value.trim();
             const lineas = [l1,l2,l3].filter(Boolean);
 
-            ctx.fillStyle = '#E8623A';
-            ctx.font = 'bold 48px Georgia, serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('HORARIO', W/2, 230);
-            ctx.fillStyle = '#fff';
-            ctx.font = '34px Georgia, serif';
-            ctx.fillText('DE APERTURA', W/2, 278);
-            // Banda subtítulo
-            ctx.fillStyle = 'rgba(255,100,80,0.3)';
-            ctx.beginPath();
-            ctx.roundRect ? ctx.roundRect(80,295,W-160,45,22) : ctx.rect(80,295,W-160,45);
-            ctx.fill();
-            ctx.fillStyle = '#FFB3A0';
-            ctx.font = 'italic 24px Georgia, serif';
-            ctx.fillText(titulo, W/2, 325);
+            chalkText(ctx, 'HORARIO', W/2, 230, '#F07040', 'bold 90px Georgia, serif');
+            chalkText(ctx, 'DE APERTURA', W/2, 290, 'rgba(255,255,255,0.88)', 'bold 48px Georgia, serif');
+            chalkLine(ctx, 80, 308, W-80, 308, '#F07040', 4);
+            chalkLine(ctx, 100, 318, W-100, 318, 'rgba(240,112,64,0.3)', 2);
 
-            let y = 420;
+            // Banda subtítulo
+            const sg = ctx.createLinearGradient(80,330,80,385);
+            sg.addColorStop(0,'rgba(240,112,64,0.25)'); sg.addColorStop(1,'rgba(240,112,64,0.05)');
+            ctx.fillStyle=sg;
+            ctx.beginPath();
+            if(ctx.roundRect) ctx.roundRect(80,332,W-160,50,25); else ctx.rect(80,332,W-160,50);
+            ctx.fill();
+            chalkText(ctx, titulo, W/2, 366, 'rgba(255,200,170,0.95)', 'italic 28px Georgia, serif');
+
+            let y = 460;
             lineas.forEach(l => {
-                // Icono calendario
-                ctx.font = '28px serif';
-                ctx.textAlign = 'left';
-                ctx.fillText('📅', 80, y);
-                // Texto dividido por ":"
                 const parts = l.split(':');
                 if (parts.length > 1) {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = 'bold 30px Georgia, serif';
-                    ctx.fillText(parts[0].toUpperCase()+':', 115, y);
-                    const w1 = ctx.measureText(parts[0].toUpperCase()+': ').width;
-                    ctx.fillStyle = '#E8623A';
-                    ctx.fillText(parts.slice(1).join(':').trim(), 115+w1, y);
+                    const label = parts[0].toUpperCase()+':';
+                    const valor = parts.slice(1).join(':').trim();
+                    chalkText(ctx, label, 80, y, 'rgba(255,255,255,0.85)', 'bold 38px Georgia, serif', 'left');
+                    ctx.font = 'bold 38px Georgia, serif';
+                    const lw = ctx.measureText(label+' ').width;
+                    chalkText(ctx, valor, 80+lw, y, '#F07040', 'bold 38px Georgia, serif', 'left');
                 } else {
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '28px Georgia, serif';
-                    ctx.fillText(l, 115, y);
+                    chalkText(ctx, l, 80, y, 'rgba(255,255,255,0.9)', '38px Georgia, serif', 'left');
                 }
-                // Divisor
-                ctx.strokeStyle = 'rgba(255,255,255,0.15)'; ctx.lineWidth = 1;
-                ctx.beginPath(); ctx.moveTo(80,y+15); ctx.lineTo(W-80,y+15); ctx.stroke();
-                ctx.textAlign = 'center';
-                y += 85;
+                chalkLine(ctx, 68, y+16, W-68, y+16, 'rgba(255,255,255,0.12)', 1);
+                y += 90;
             });
 
-            ctx.font = '36px serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('❤️', W/2, y+40);
+            ctx.font = '42px serif'; ctx.textAlign='center';
+            ctx.fillText('❤️', W/2, y+50);
         }
 
         function descargarCartel() {
