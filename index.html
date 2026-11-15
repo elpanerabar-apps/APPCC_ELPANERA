@@ -4265,6 +4265,16 @@
         }
 
         // Dashboard — botones de acceso rápido
+        // Busca un campo en un objeto por múltiples nombres (insensible a mayúsculas)
+        function getCampo(c, ...nombres) {
+            for (const n of nombres) {
+                if (c[n] !== undefined && c[n] !== null && c[n] !== '') return c[n];
+                const key = Object.keys(c).find(k => k.toLowerCase() === n.toLowerCase());
+                if (key && c[key] !== undefined && c[key] !== null && c[key] !== '') return c[key];
+            }
+            return '';
+        }
+
         function getUltimaFecha(arr, campoFecha) {
             if (!arr || arr.length === 0) return null;
             let mejor = null;
