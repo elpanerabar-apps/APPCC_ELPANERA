@@ -621,7 +621,7 @@
 
         .dashboard-screen {
             min-height: calc(100vh - 70px);
-            background: #1A1A2E;
+            background: var(--cream);
             padding: 0;
         }
 
@@ -4339,8 +4339,12 @@
 
             const grid = document.getElementById('dashboardGrid');
             if (!grid) return;
+
+            // Guardar contenido actual por si falla el repintado
+            const gridBackup = grid.innerHTML;
             grid.innerHTML = '';
 
+            try {
             for (const s of secciones) {
                 const arr = s.arr();
                 let statusDot = 'ok';
@@ -4407,6 +4411,11 @@
                     `;
                 }
                 grid.appendChild(card);
+            }
+            } catch(e) {
+                console.error('Error en updateDashboard:', e);
+                // Si falla, restaurar las tarjetas anteriores
+                if (gridBackup) grid.innerHTML = gridBackup;
             }
         }
 
