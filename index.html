@@ -996,6 +996,8 @@
                     <div class="dashboard-grid" id="dashboardGrid"></div>
                     <div class="dashboard-import-row">
                         <button class="btn-import-dash" onclick="openModal('importModal')">📥 Importar datos desde Excel</button>
+                        <button class="btn-import-dash" style="margin-top:8px;background:rgba(217,118,66,0.12);border-color:rgba(217,118,66,0.3);color:var(--terracotta);" onclick="diagnosticarConexion()">🔍 Probar conexión Google Sheets</button>
+                        <div id="diagResult" style="display:none;margin-top:10px;background:#fff;border:1px solid rgba(217,118,66,0.3);border-radius:12px;padding:12px;font-family:monospace;font-size:11px;color:#333;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;"></div>
                     </div>
                 </div>
             </div>
@@ -6130,6 +6132,41 @@
 
         // Cargar semana al iniciar
         try { menuSemana = JSON.parse(localStorage.getItem('paneraMenuSemana')||'{}'); } catch(e){ menuSemana={}; }
+
+        // ===== DIAGNÓSTICO DE CONEXIÓN =====
+        async function diagnosticarConexion() {
+            const box = document.getElementById('diagResult');
+            box.style.display = 'block';
+            box.textContent = '⏳ Probando conexión...\n';
+
+            const tablas = ['temperaturas','limpieza','recepcion','congeladores','documentos','proveedores'];
+            for (const tabla of tablas) {
+                box.textContent += `\n🔄 ${tabla}...`;
+                try {
+                    const controller = new AbortController();
+                    const timeout = setTimeout(() => controller.abort(), 12000);
+                    const url = SCRIPT_URL + '?action=get&tabla=' + tabla;
+                    const res = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeout);
+                    const texto = await res.text();
+                    // Intentar parsear como JSON
+                    try {
+                        const json = JSON.parse(texto);
+                        if (json.ok) {
+                            box.textContent += ` ✅ ${json.data.length} registros`;
+                        } else {
+                            box.textContent += ` ⚠️ ok=false → ${JSON.stringify(json).slice(0,120)}`;
+                        }
+                    } catch(pe) {
+                        // No es JSON — mostrar los primeros 200 chars de la respuesta
+                        box.textContent += ` ❌ No es JSON.\nRespuesta: ${texto.slice(0,200)}`;
+                    }
+                } catch(e) {
+                    box.textContent += ` ❌ Error: ${e.message}`;
+                }
+            }
+            box.textContent += '\n\n✅ Diagnóstico completado.';
+        }
 
     </script>
 </body>
