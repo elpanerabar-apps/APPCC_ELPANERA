@@ -882,6 +882,14 @@
         .estilo-opt { padding:6px 12px; border:1px solid rgba(255,255,255,0.2); border-radius:20px; background:none; color:rgba(255,255,255,0.6); font-size:11px; font-weight:700; cursor:pointer; transition:all .2s; }
         .estilo-opt.active { border-color:#E1306C; background:rgba(225,48,108,0.2); color:#fff; }
 
+        /* Grid de stickers */
+        .sticker-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .sticker-thumb { position:relative; aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer; border:2px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); transition:all .2s; }
+        .sticker-thumb img { width:100%; height:100%; object-fit:contain; padding:4px; }
+        .sticker-thumb.selected { border-color:#FFD700; background:rgba(255,215,0,0.15); }
+        .sticker-thumb.selected::after { content:'✓'; position:absolute; top:3px; right:5px; font-size:14px; color:#FFD700; font-weight:900; text-shadow:0 0 4px rgba(0,0,0,0.8); }
+        .sticker-thumb .sticker-label { position:absolute; bottom:0; left:0; right:0; background:rgba(0,0,0,0.65); font-size:9px; color:#fff; text-align:center; padding:2px 0; }
+
         /* Selector de fotos */
         .foto-selector { margin-bottom:16px; }
         .foto-selector-label { color:rgba(255,255,255,0.6); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; display:block; }
@@ -1804,6 +1812,13 @@
                             <div style="margin-top:8px;">
                                 <button class="foto-sin-fondo-btn" id="redesBtnSinFondo" onclick="redesSinFoto()">✖ Sin foto</button>
                             </div>
+                        </div>
+
+                        <!-- Stickers El Panera -->
+                        <div class="cart-seccion">
+                            <div class="cart-label">🏷️ Stickers (máx. 3)</div>
+                            <div class="sticker-grid" id="redesStickerGrid"></div>
+                            <div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.45);">Toca para añadir/quitar · Se colocan automáticamente</div>
                         </div>
 
                         <!-- Estilo de texto -->
@@ -6111,6 +6126,21 @@
         let cartTipoActual = 'cerrado';
         let cartFotoSeleccionada = null; // null = sin foto
 
+        // Catálogo de stickers El Panera
+        const STICKERS_CATALOG = [
+            { id:'terraza-01',      label:'Terraza',        src:'assets/stickers/terraza-01.png' },
+            { id:'terraza-02',      label:'Terraza 2',      src:'assets/stickers/terraza-02.png' },
+            { id:'pizarrin-menu',   label:'Pizarrín menú',  src:'assets/stickers/pizarrin-menu.png' },
+            { id:'cruasan',         label:'Cruasán',        src:'assets/stickers/cruasan.png' },
+            { id:'aceitunas',       label:'Aceitunas',      src:'assets/stickers/aceitunas.png' },
+            { id:'aperol-spritz',   label:'Aperol Spritz',  src:'assets/stickers/aperol-spritz.png' },
+            { id:'estrella-galicia',label:'Estrella Galicia',src:'assets/stickers/estrella-galicia.png' },
+            { id:'cafe-capuchino',  label:'Café',           src:'assets/stickers/cafe-capuchino.png' },
+            { id:'bocata-pollo',    label:'Bocata pollo',   src:'assets/stickers/bocata-pollo.png' },
+            { id:'logo-badge',      label:'Logo badge',     src:'assets/stickers/logo-badge.png' },
+            { id:'tortilla',        label:'Tortilla',       src:'assets/stickers/tortilla.png' }
+        ];
+
         // Catálogo de fotos por categoría
         const FOTOS_CATALOG = {
             comida: [
@@ -6400,6 +6430,7 @@
         let redesFotoSel = null;
         let redesColorSel = '#FFFFFF';
         let redesEstiloSel = 'grande';
+        let redesStickersSel = []; // array de src de stickers activos
         let redesCatActual = 'comida';
         let lastRedesCanvas = null;
 
@@ -6444,6 +6475,33 @@
             redesFotoSel = null;
             document.querySelectorAll('#redesFotoGrid .foto-thumb').forEach(t=>t.classList.remove('selected'));
             document.getElementById('redesBtnSinFondo').classList.add('active');
+        }
+
+        function renderRedesStickerGrid() {
+            const grid = document.getElementById('redesStickerGrid');
+            if (!grid) return;
+            grid.innerHTML = STICKERS_CATALOG.map(s => {
+                const sel = redesStickersSel.includes(s.src) ? 'selected' : '';
+                return `<div class="sticker-thumb ${sel}" onclick="redesToggleSticker('${s.src}',this)" title="${s.label}">
+                    <img src="${s.src}" alt="${s.label}" loading="lazy">
+                    <span class="sticker-label">${s.label}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function redesToggleSticker(src, el) {
+            if (redesStickersSel.includes(src)) {
+                redesStickersSel = redesStickersSel.filter(s => s !== src);
+                el.classList.remove('selected');
+            } else {
+                if (redesStickersSel.length >= 3) {
+                    // Quitar el primero seleccionado
+                    const quitado = redesStickersSel.shift();
+                    document.querySelectorAll('#redesStickerGrid .sticker-thumb.selected')[0]?.classList.remove('selected');
+                }
+                redesStickersSel.push(src);
+                el.classList.add('selected');
+            }
         }
 
         function redesSelColor(el) {
@@ -6492,8 +6550,12 @@
                 // Footer: @elpanerabar
                 dibujarRedesFooter(ctx, W, H);
 
-                document.getElementById('redesPreviewWrap').style.display='block';
-                lastRedesCanvas = canvas;
+                // Stickers encima de todo
+                dibujarStickersSobreCanvas(ctx, W, H, () => {
+                    document.getElementById('redesPreviewWrap').style.display='block';
+                    lastRedesCanvas = canvas;
+                });
+                return; // el callback gestiona el display
             };
 
             if (redesFotoSel) {
@@ -6609,42 +6671,83 @@
             if(extra) rTexto(ctx,extra,W/2,H*0.68,'rgba(255,255,255,0.7)','italic 58px Georgia, serif');
         }
 
+        // Ajusta fuente para que el texto quepa en maxW px
+        function fitFont(ctx, txt, basePx, minPx, maxW, fontTemplate) {
+            let fs = basePx;
+            ctx.font = fontTemplate.replace('__FS__', fs+'px');
+            while (ctx.measureText(txt).width > maxW && fs > minPx) {
+                fs -= 4;
+                ctx.font = fontTemplate.replace('__FS__', fs+'px');
+            }
+            return fs;
+        }
+
         function dibujarRedesDiaSemana(ctx, W, H) {
             const dia = (document.getElementById('redesDsDia').value||'VIERNES').toUpperCase();
             const extra = document.getElementById('redesDsExtra').value;
             const col = redesColorSel;
+            const maxW = W * 0.88;
 
-            // Sombra de fondo del día
+            // Sombra de fondo del día — adaptativa
             ctx.save();
-            ctx.font='bold 260px Work Sans, sans-serif'; ctx.textAlign='center';
-            ctx.globalAlpha=0.07; ctx.fillStyle='#fff';
-            ctx.fillText(dia,W/2,H*0.55);
+            ctx.textAlign='center'; ctx.globalAlpha=0.07; ctx.fillStyle='#fff';
+            const fsSombra = fitFont(ctx, dia, 260, 80, maxW, 'bold __FS__ Work Sans, sans-serif');
+            ctx.fillText(dia, W/2, H*0.55);
             ctx.restore();
 
             if (redesEstiloSel === 'elegante') {
-                rTexto(ctx,dia,W/2,H*0.47,col,'italic bold 200px Georgia, serif');
+                const fs = fitFont(ctx, dia, 200, 60, maxW, 'italic bold __FS__ Georgia, serif');
+                rTexto(ctx, dia, W/2, H*0.47, col, 'italic bold '+fs+'px Georgia, serif');
             } else {
-                rTextoSticker(ctx,dia,W/2,H*0.47,col,'rgba(0,0,0,0.9)','bold 230px Work Sans, sans-serif');
+                const fs = fitFont(ctx, dia, 230, 60, maxW, 'bold __FS__ Work Sans, sans-serif');
+                rTextoSticker(ctx, dia, W/2, H*0.47, col, 'rgba(0,0,0,0.9)', 'bold '+fs+'px Work Sans, sans-serif');
             }
-            if(extra) rTexto(ctx,extra,W/2,H*0.60,'rgba(255,255,255,0.85)','italic 70px Georgia, serif');
+            if(extra) rTexto(ctx, extra, W/2, H*0.60, 'rgba(255,255,255,0.85)', 'italic 70px Georgia, serif');
         }
 
         function dibujarRedesFooter(ctx, W, H) {
-            // Badge @elpanerabar abajo centrado
+            // Badge @elpanerabar abajo centrado — único elemento
             ctx.save();
             ctx.font='bold 58px Work Sans, sans-serif'; ctx.textAlign='center';
             const tw = ctx.measureText('@ELPANERABAR').width;
-            const bw = tw+80, bh=90, bx=W/2-bw/2, by=H-180;
+            const bw = tw+80, bh=90, bx=W/2-bw/2, by=H-200;
             ctx.fillStyle='rgba(255,255,255,0.18)';
             ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=3;
             if(ctx.roundRect) ctx.roundRect(bx,by,bw,bh,45); else ctx.rect(bx,by,bw,bh);
             ctx.fill(); ctx.stroke();
             ctx.fillStyle='#fff'; ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=10;
             ctx.fillText('@ELPANERABAR', W/2, by+60);
-            // Pin de ubicación
-            ctx.font='46px Work Sans, sans-serif'; ctx.fillStyle='rgba(255,255,255,0.55)';
-            ctx.fillText('📍 El Panera Bar · Llanera', W/2, H-62);
             ctx.restore();
+        }
+
+        // Dibuja stickers seleccionados sobre el canvas
+        function dibujarStickersSobreCanvas(ctx, W, H, callback) {
+            if (!redesStickersSel || redesStickersSel.length === 0) { callback(); return; }
+            // Posiciones predefinidas para hasta 3 stickers
+            const posiciones = [
+                { x: W*0.75, y: H*0.18, size: 280 },
+                { x: W*0.20, y: H*0.72, size: 240 },
+                { x: W*0.78, y: H*0.60, size: 220 }
+            ];
+            let loaded = 0;
+            const imgs = redesStickersSel.slice(0, 3);
+            if (imgs.length === 0) { callback(); return; }
+            imgs.forEach((src, i) => {
+                const img = new Image();
+                img.onload = () => {
+                    const pos = posiciones[i];
+                    // Dibujar con sombra suave
+                    ctx.save();
+                    ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=20; ctx.shadowOffsetX=6; ctx.shadowOffsetY=6;
+                    // Centrado en pos
+                    ctx.drawImage(img, pos.x - pos.size/2, pos.y - pos.size/2, pos.size, pos.size);
+                    ctx.restore();
+                    loaded++;
+                    if (loaded === imgs.length) callback();
+                };
+                img.onerror = () => { loaded++; if (loaded === imgs.length) callback(); };
+                img.src = src;
+            });
         }
 
         // Wrap básico de texto por longitud
@@ -6685,7 +6788,10 @@
         }
 
         // Init redes grid
-        document.addEventListener('DOMContentLoaded', () => { renderRedesFotoGrid('comida'); });
+        document.addEventListener('DOMContentLoaded', () => {
+            renderRedesFotoGrid('comida');
+            renderRedesStickerGrid();
+        });
 
         // Cargar semana al iniciar
         try { menuSemana = JSON.parse(localStorage.getItem('paneraMenuSemana')||'{}'); } catch(e){ menuSemana={}; }
