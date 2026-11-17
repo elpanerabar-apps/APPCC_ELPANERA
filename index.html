@@ -857,6 +857,31 @@
         .cart-tipo-icon { font-size:28px; display:block; margin-bottom:6px; }
         .cart-tipo-label { color:rgba(255,255,255,0.8); font-size:12px; font-weight:700; }
 
+        /* ===== REDES SOCIALES ===== */
+        .redes-screen { background:#0d0d0d; min-height:calc(100vh - 70px); }
+        .redes-tipos { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px; }
+        .redes-tipo-btn { background:rgba(255,255,255,0.05); border:2px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px 10px; cursor:pointer; text-align:center; transition:all .2s; }
+        .redes-tipo-btn.active { border-color:#E1306C; background:rgba(225,48,108,0.15); }
+        .redes-tipo-icon { font-size:26px; display:block; margin-bottom:5px; }
+        .redes-tipo-label { color:rgba(255,255,255,0.8); font-size:11px; font-weight:700; display:block; }
+        .redes-tipo-sub { color:rgba(255,255,255,0.4); font-size:10px; display:block; margin-top:2px; }
+        .redes-form-card { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:16px; margin-bottom:16px; }
+        .redes-form-card h3 { color:#fff; font-size:14px; font-weight:700; margin:0 0 12px 0; }
+        .redes-input { width:100%; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:10px 14px; color:#fff; font-family:'Work Sans',sans-serif; font-size:14px; margin-bottom:10px; box-sizing:border-box; }
+        .redes-input::placeholder { color:rgba(255,255,255,0.3); }
+        .redes-label-sm { color:rgba(255,255,255,0.5); font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; display:block; }
+        .redes-generate-btn { width:100%; background:linear-gradient(135deg,#E1306C,#833AB4); border:none; border-radius:12px; color:#fff; font-family:'Work Sans',sans-serif; font-size:15px; font-weight:700; padding:14px; cursor:pointer; margin-top:10px; letter-spacing:.03em; }
+        .redes-preview-wrap { background:rgba(0,0,0,0.3); border-radius:16px; padding:16px; margin-top:16px; text-align:center; }
+        .redes-preview-wrap p { color:rgba(255,255,255,0.4); font-size:12px; margin:8px 0 0; }
+        .redes-btn-dl { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); border-radius:10px; color:#fff; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; margin:4px; }
+        .redes-btn-wa { background:rgba(37,211,102,0.2); border:1px solid rgba(37,211,102,0.4); border-radius:10px; color:#25D366; padding:10px 18px; font-size:13px; font-weight:700; cursor:pointer; margin:4px; }
+        .color-opts { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        .color-opt { width:30px; height:30px; border-radius:50%; border:3px solid transparent; cursor:pointer; transition:border .15s; }
+        .color-opt.active { border-color:#fff; }
+        .estilo-opts { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+        .estilo-opt { padding:6px 12px; border:1px solid rgba(255,255,255,0.2); border-radius:20px; background:none; color:rgba(255,255,255,0.6); font-size:11px; font-weight:700; cursor:pointer; transition:all .2s; }
+        .estilo-opt.active { border-color:#E1306C; background:rgba(225,48,108,0.2); color:#fff; }
+
         /* Selector de fotos */
         .foto-selector { margin-bottom:16px; }
         .foto-selector-label { color:rgba(255,255,255,0.6); font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; margin-bottom:8px; display:block; }
@@ -1726,6 +1751,114 @@
                             <div class="piz-actions" style="margin-top:12px;">
                                 <button class="piz-btn-dl" onclick="descargarCartel()">💾 Descargar PNG</button>
                                 <button class="piz-btn-wa" onclick="compartirWhatsApp('cartel')">📱 WhatsApp</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Redes Sociales Section -->
+            <div id="redes" class="section">
+                <div class="redes-screen">
+                    <div class="section-topbar" style="background:#0d0d0d; border-bottom:1px solid rgba(255,255,255,0.08);">
+                        <button class="btn-volver" onclick="goHome()" style="border-color:rgba(255,255,255,0.3);color:rgba(255,255,255,0.8);">← Inicio</button>
+                        <span class="section-topbar-title" style="color:#fff;">📱 Redes Sociales</span>
+                    </div>
+                    <div style="padding:16px;">
+                        <p style="color:rgba(255,255,255,0.4);font-size:12px;margin-bottom:14px;">Crea stories y posts para Instagram, Facebook y WhatsApp</p>
+
+                        <!-- Tipo de post -->
+                        <div class="redes-tipos" id="redesTipos">
+                            <button class="redes-tipo-btn active" data-tipo="buenos-dias" onclick="redesSelTipo(this)">
+                                <span class="redes-tipo-icon">☀️</span>
+                                <span class="redes-tipo-label">Buenos días</span>
+                                <span class="redes-tipo-sub">Apertura del bar</span>
+                            </button>
+                            <button class="redes-tipo-btn" data-tipo="plato-dia" onclick="redesSelTipo(this)">
+                                <span class="redes-tipo-icon">🍽️</span>
+                                <span class="redes-tipo-label">Plato del día</span>
+                                <span class="redes-tipo-sub">Pincho o bocadillo</span>
+                            </button>
+                            <button class="redes-tipo-btn" data-tipo="abierto" onclick="redesSelTipo(this)">
+                                <span class="redes-tipo-icon">🔓</span>
+                                <span class="redes-tipo-label">Abierto</span>
+                                <span class="redes-tipo-sub">Desde las X:00</span>
+                            </button>
+                            <button class="redes-tipo-btn" data-tipo="dia-semana" onclick="redesSelTipo(this)">
+                                <span class="redes-tipo-icon">📅</span>
+                                <span class="redes-tipo-label">Día de la semana</span>
+                                <span class="redes-tipo-sub">Lunes, Viernes…</span>
+                            </button>
+                        </div>
+
+                        <!-- Foto de fondo (redes) -->
+                        <div class="redes-form-card">
+                            <span class="redes-label-sm">📸 Foto de fondo</span>
+                            <div class="foto-cats" id="redesFotoCats">
+                                <button class="foto-cat-btn active" onclick="redesFotoCat(this,'comida')">🍢 Comida</button>
+                                <button class="foto-cat-btn" onclick="redesFotoCat(this,'desayunos')">☕ Desayunos</button>
+                                <button class="foto-cat-btn" onclick="redesFotoCat(this,'ambiente')">🌅 Ambiente</button>
+                                <button class="foto-cat-btn" onclick="redesFotoCat(this,'branding')">🏷️ Branding</button>
+                            </div>
+                            <div class="foto-thumbs" id="redesFotoGrid"></div>
+                            <div style="margin-top:8px;">
+                                <button class="foto-sin-fondo-btn" id="redesBtnSinFondo" onclick="redesSinFoto()">✖ Sin foto</button>
+                            </div>
+                        </div>
+
+                        <!-- Estilo de texto -->
+                        <div class="redes-form-card">
+                            <span class="redes-label-sm">🎨 Estilo</span>
+                            <div class="estilo-opts" id="redesEstiloOpts">
+                                <button class="estilo-opt active" data-estilo="grande" onclick="redesSelEstilo(this)">GRANDE</button>
+                                <button class="estilo-opt" data-estilo="elegante" onclick="redesSelEstilo(this)">Elegante</button>
+                                <button class="estilo-opt" data-estilo="moderno" onclick="redesSelEstilo(this)">Moderno</button>
+                            </div>
+                            <span class="redes-label-sm" style="margin-top:8px;">Color del texto</span>
+                            <div class="color-opts" id="redesColorOpts">
+                                <div class="color-opt active" data-color="#FFFFFF" style="background:#FFFFFF" onclick="redesSelColor(this)"></div>
+                                <div class="color-opt" data-color="#F4D03F" style="background:#F4D03F" onclick="redesSelColor(this)"></div>
+                                <div class="color-opt" data-color="#E8623A" style="background:#E8623A" onclick="redesSelColor(this)"></div>
+                                <div class="color-opt" data-color="#2ECC71" style="background:#2ECC71" onclick="redesSelColor(this)"></div>
+                                <div class="color-opt" data-color="#EC407A" style="background:#EC407A" onclick="redesSelColor(this)"></div>
+                                <div class="color-opt" data-color="#00BCD4" style="background:#00BCD4" onclick="redesSelColor(this)"></div>
+                            </div>
+                        </div>
+
+                        <!-- Formularios por tipo -->
+                        <div id="redesFormBuenosDias" class="redes-form-card">
+                            <h3>☀️ Buenos días</h3>
+                            <input id="redesBdHora" class="redes-input" placeholder="Hora de apertura (ej: desde las 6:00)" />
+                            <input id="redesBdExtra" class="redes-input" placeholder="Mensaje extra (ej: ¡Os esperamos!)" />
+                        </div>
+
+                        <div id="redesFormPlatoDia" class="redes-form-card" style="display:none;">
+                            <h3>🍽️ Plato / Pincho del día</h3>
+                            <input id="redesPdNombre" class="redes-input" placeholder="Nombre del plato (ej: Pincho de carne guisada)" />
+                            <input id="redesPdPrecio" class="redes-input" placeholder="Precio (ej: 1,50 €)" />
+                            <input id="redesPdExtra" class="redes-input" placeholder="Texto extra (opcional)" />
+                        </div>
+
+                        <div id="redesFormAbierto" class="redes-form-card" style="display:none;">
+                            <h3>🔓 Abierto</h3>
+                            <input id="redesAbHora" class="redes-input" placeholder="Desde las... (ej: 6:00)" />
+                            <input id="redesAbExtra" class="redes-input" placeholder="Mensaje extra (ej: ¡A por el lunes!)" />
+                        </div>
+
+                        <div id="redesFormDiaSemana" class="redes-form-card" style="display:none;">
+                            <h3>📅 Día de la semana</h3>
+                            <input id="redesDsDia" class="redes-input" placeholder="Día (ej: VIERNES, LUNES...)" />
+                            <input id="redesDsExtra" class="redes-input" placeholder="Texto extra (ej: ¡A por él!)" />
+                        </div>
+
+                        <button class="redes-generate-btn" onclick="generarPostRedes()">✨ Crear post</button>
+
+                        <div class="redes-preview-wrap" id="redesPreviewWrap" style="display:none;margin-top:16px;">
+                            <canvas id="redesCanvas" style="max-width:100%;border-radius:12px;"></canvas>
+                            <p>Story 1080×1920 · toca para ampliar</p>
+                            <div style="margin-top:12px;">
+                                <button class="redes-btn-dl" onclick="descargarRedes()">💾 Guardar</button>
+                                <button class="redes-btn-wa" onclick="compartirWhatsApp('redes')">📱 WhatsApp</button>
                             </div>
                         </div>
                     </div>
@@ -4383,6 +4516,11 @@
                     campoFecha: null, needsWeekly: false, arr: () => []
                 },
                 {
+                    id: 'redes', label: 'Redes Sociales', sub: 'Stories e posts para Instagram', icon: '📱',
+                    grad: 'linear-gradient(135deg, #E1306C 0%, #833AB4 100%)',
+                    campoFecha: null, needsWeekly: false, arr: () => []
+                },
+                {
                     id: 'exportar', label: 'Exportar', sub: 'PDF, Excel y CSV', icon: '📤',
                     grad: 'linear-gradient(135deg, #F39C12 0%, #D68910 100%)',
                     campoFecha: null, needsWeekly: false, arr: () => [], wide: true
@@ -5722,25 +5860,27 @@
         }
 
         // Marco pizarra común (madera gruesa + doble borde tiza)
-        function dibujarMarco(ctx, W, H) {
-            // Pizarra verde oscuro auténtico
-            ctx.fillStyle = '#1a2f1a';
-            ctx.fillRect(0,0,W,H);
-            // Textura con gradiente sutil
-            const bg = ctx.createLinearGradient(0,0,W,H);
-            bg.addColorStop(0,'rgba(10,30,10,0.5)');
-            bg.addColorStop(0.5,'rgba(20,40,20,0.3)');
-            bg.addColorStop(1,'rgba(5,25,5,0.6)');
-            ctx.fillStyle = bg;
-            ctx.fillRect(0,0,W,H);
-            // Puntitos de tiza aleatorios (textura)
-            ctx.save();
-            for(let i=0; i<180; i++){
-                ctx.globalAlpha = Math.random()*0.06;
-                ctx.fillStyle='#fff';
-                ctx.fillRect(Math.random()*W, Math.random()*H, Math.random()*3+1, Math.random()*2+1);
+        function dibujarMarco(ctx, W, H, soloMarco) {
+            if (!soloMarco) {
+                // Pizarra verde oscuro auténtico
+                ctx.fillStyle = '#1a2f1a';
+                ctx.fillRect(0,0,W,H);
+                // Textura con gradiente sutil
+                const bg = ctx.createLinearGradient(0,0,W,H);
+                bg.addColorStop(0,'rgba(10,30,10,0.5)');
+                bg.addColorStop(0.5,'rgba(20,40,20,0.3)');
+                bg.addColorStop(1,'rgba(5,25,5,0.6)');
+                ctx.fillStyle = bg;
+                ctx.fillRect(0,0,W,H);
+                // Puntitos de tiza aleatorios (textura)
+                ctx.save();
+                for(let i=0; i<180; i++){
+                    ctx.globalAlpha = Math.random()*0.06;
+                    ctx.fillStyle='#fff';
+                    ctx.fillRect(Math.random()*W, Math.random()*H, Math.random()*3+1, Math.random()*2+1);
+                }
+                ctx.globalAlpha=1; ctx.restore();
             }
-            ctx.globalAlpha=1; ctx.restore();
             // Marco madera gruesa
             const mw = 42;
             const mg = ctx.createLinearGradient(0,0,mw,0);
@@ -6044,7 +6184,7 @@
             const ctx = canvas.getContext('2d');
 
             const dibujarContenido = () => {
-                dibujarMarco(ctx, W, H);
+                dibujarMarco(ctx, W, H, !!cartFotoSeleccionada);
 
                 // Cabecera común: taza + nombre
                 ctx.font = '48px serif';
@@ -6254,6 +6394,298 @@
             link.href = lastCartCanvas.toDataURL('image/png');
             link.click();
         }
+
+        // ===== REDES SOCIALES =====
+        let redesTipoActual = 'buenos-dias';
+        let redesFotoSel = null;
+        let redesColorSel = '#FFFFFF';
+        let redesEstiloSel = 'grande';
+        let redesCatActual = 'comida';
+        let lastRedesCanvas = null;
+
+        function redesSelTipo(btn) {
+            document.querySelectorAll('.redes-tipo-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            redesTipoActual = btn.dataset.tipo;
+            ['BuenosDias','PlatoDia','Abierto','DiaSemana'].forEach(t => {
+                const map = {'BuenosDias':'buenos-dias','PlatoDia':'plato-dia','Abierto':'abierto','DiaSemana':'dia-semana'};
+                document.getElementById(`redesForm${t}`).style.display = map[t]===redesTipoActual?'block':'none';
+            });
+            document.getElementById('redesPreviewWrap').style.display='none';
+        }
+
+        function redesFotoCat(btn, cat) {
+            document.querySelectorAll('#redesFotoCats .foto-cat-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            redesCatActual = cat;
+            renderRedesFotoGrid(cat);
+        }
+
+        function renderRedesFotoGrid(cat) {
+            const grid = document.getElementById('redesFotoGrid');
+            const fotos = FOTOS_CATALOG[cat] || [];
+            grid.innerHTML = fotos.map(nombre => {
+                const ruta = `assets/fotos/${cat}/${nombre}.jpg`;
+                const sel = redesFotoSel===ruta ? 'selected' : '';
+                return `<div class="foto-thumb ${sel}" onclick="redesSelFoto('${ruta}',this)">
+                    <img src="${ruta}" loading="lazy" onerror="this.parentElement.style.display='none'">
+                </div>`;
+            }).join('');
+        }
+
+        function redesSelFoto(ruta, el) {
+            redesFotoSel = ruta;
+            document.querySelectorAll('#redesFotoGrid .foto-thumb').forEach(t=>t.classList.remove('selected'));
+            el.classList.add('selected');
+            document.getElementById('redesBtnSinFondo').classList.remove('active');
+        }
+
+        function redesSinFoto() {
+            redesFotoSel = null;
+            document.querySelectorAll('#redesFotoGrid .foto-thumb').forEach(t=>t.classList.remove('selected'));
+            document.getElementById('redesBtnSinFondo').classList.add('active');
+        }
+
+        function redesSelColor(el) {
+            document.querySelectorAll('#redesColorOpts .color-opt').forEach(c=>c.classList.remove('active'));
+            el.classList.add('active');
+            redesColorSel = el.dataset.color;
+        }
+
+        function redesSelEstilo(btn) {
+            document.querySelectorAll('#redesEstiloOpts .estilo-opt').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            redesEstiloSel = btn.dataset.estilo;
+        }
+
+        function generarPostRedes() {
+            const canvas = document.getElementById('redesCanvas');
+            const W = 1080, H = 1920;
+            canvas.width = W; canvas.height = H;
+            const ctx = canvas.getContext('2d');
+
+            const dibujar = () => {
+                // Overlay degradado según tipo
+                const overlayColor = {
+                    'buenos-dias': 'rgba(5,5,20,0.52)',
+                    'plato-dia':   'rgba(10,5,0,0.58)',
+                    'abierto':     'rgba(5,20,5,0.50)',
+                    'dia-semana':  'rgba(10,10,30,0.55)'
+                }[redesTipoActual] || 'rgba(0,0,0,0.55)';
+
+                ctx.fillStyle = overlayColor;
+                ctx.fillRect(0, 0, W, H);
+
+                // Degradado extra abajo para texto
+                const gradBot = ctx.createLinearGradient(0, H*0.5, 0, H);
+                gradBot.addColorStop(0,'rgba(0,0,0,0)');
+                gradBot.addColorStop(1,'rgba(0,0,0,0.75)');
+                ctx.fillStyle = gradBot;
+                ctx.fillRect(0, 0, W, H);
+
+                // Contenido por tipo
+                if (redesTipoActual === 'buenos-dias') dibujarRedesBuenosDias(ctx, W, H);
+                else if (redesTipoActual === 'plato-dia') dibujarRedesPlatoDia(ctx, W, H);
+                else if (redesTipoActual === 'abierto') dibujarRedesAbierto(ctx, W, H);
+                else if (redesTipoActual === 'dia-semana') dibujarRedesDiaSemana(ctx, W, H);
+
+                // Footer: @elpanerabar
+                dibujarRedesFooter(ctx, W, H);
+
+                document.getElementById('redesPreviewWrap').style.display='block';
+                lastRedesCanvas = canvas;
+            };
+
+            if (redesFotoSel) {
+                const img = new Image();
+                img.onload = () => {
+                    const iR=img.width/img.height, cR=W/H;
+                    let sx=0,sy=0,sw=img.width,sh=img.height;
+                    if(iR>cR){sw=img.height*cR;sx=(img.width-sw)/2;}
+                    else{sh=img.width/cR;sy=(img.height-sh)/2;}
+                    ctx.drawImage(img,sx,sy,sw,sh,0,0,W,H);
+                    dibujar();
+                };
+                img.onerror = () => { dibujarFondoDefault(ctx,W,H); dibujar(); };
+                img.src = redesFotoSel;
+            } else {
+                dibujarFondoDefault(ctx, W, H);
+                dibujar();
+            }
+        }
+
+        function dibujarFondoDefault(ctx, W, H) {
+            const grd = ctx.createLinearGradient(0,0,W,H);
+            grd.addColorStop(0,'#1a1a2e'); grd.addColorStop(0.5,'#16213e'); grd.addColorStop(1,'#0f3460');
+            ctx.fillStyle = grd; ctx.fillRect(0,0,W,H);
+        }
+
+        // Helpers de texto con sombra
+        function rTexto(ctx, txt, x, y, color, font, align, shadow) {
+            ctx.save();
+            ctx.font = font; ctx.textAlign = align||'center'; ctx.fillStyle = color;
+            if (shadow!==false) {
+                ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=18; ctx.shadowOffsetY=4;
+            }
+            ctx.fillText(txt, x, y);
+            ctx.restore();
+        }
+
+        // Contorno de texto tipo sticker
+        function rTextoSticker(ctx, txt, x, y, color, strokeColor, font, align) {
+            ctx.save();
+            ctx.font = font; ctx.textAlign = align||'center';
+            ctx.lineWidth = 14; ctx.strokeStyle = strokeColor||'rgba(0,0,0,0.9)';
+            ctx.lineJoin='round';
+            ctx.strokeText(txt, x, y);
+            ctx.fillStyle = color;
+            ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=12;
+            ctx.fillText(txt, x, y);
+            ctx.restore();
+        }
+
+        function dibujarRedesBuenosDias(ctx, W, H) {
+            const hora = document.getElementById('redesBdHora').value || 'desde las 6:00';
+            const extra = document.getElementById('redesBdExtra').value || '¡Os esperamos!';
+            const col = redesColorSel;
+
+            if (redesEstiloSel === 'grande') {
+                rTextoSticker(ctx,'Buenos',W/2,H*0.38,col,'rgba(0,0,0,0.9)','bold 220px Georgia, serif');
+                rTextoSticker(ctx,'días!',W/2,H*0.52,col,'rgba(0,0,0,0.9)','bold 220px Georgia, serif');
+            } else if (redesEstiloSel === 'elegante') {
+                rTexto(ctx,'Buenos días',W/2,H*0.42,col,'italic 160px Georgia, serif');
+            } else {
+                rTexto(ctx,'BUENOS DÍAS',W/2,H*0.42,col,'bold 130px Work Sans, sans-serif');
+            }
+            rTexto(ctx, hora, W/2, H*0.65, 'rgba(255,255,255,0.9)', 'bold 70px Work Sans, sans-serif');
+            if(extra) rTexto(ctx, extra, W/2, H*0.72, 'rgba(255,255,255,0.75)', '55px Georgia, serif');
+        }
+
+        function dibujarRedesPlatoDia(ctx, W, H) {
+            const nombre = document.getElementById('redesPdNombre').value || 'Pincho del día';
+            const precio = document.getElementById('redesPdPrecio').value || '1,50 €';
+            const extra  = document.getElementById('redesPdExtra').value;
+            const col = redesColorSel;
+
+            if (redesEstiloSel === 'grande') {
+                rTexto(ctx,'HOY',W/2,H*0.30,col,'bold 200px Georgia, serif');
+                // línea decorativa
+                ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=6; ctx.globalAlpha=0.6;
+                ctx.beginPath(); ctx.moveTo(W*0.15,H*0.335); ctx.lineTo(W*0.85,H*0.335); ctx.stroke();
+                ctx.restore();
+            }
+            // Nombre del plato — adaptativo
+            const lines = wrapText(nombre, 22);
+            lines.forEach((l,i) => rTextoSticker(ctx,l,W/2,H*(0.42+i*0.1),col,'rgba(0,0,0,0.9)','bold 130px Georgia, serif'));
+            // Precio pill
+            const py = H*(0.42+lines.length*0.1)+60;
+            ctx.save();
+            const pw=ctx.measureText(precio).width+80; ctx.font='bold 90px Work Sans, sans-serif';
+            const ppw=ctx.measureText(precio).width+80;
+            ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.strokeStyle=col; ctx.lineWidth=4;
+            if(ctx.roundRect) ctx.roundRect(W/2-ppw/2,py-80,ppw,100,50); else ctx.rect(W/2-ppw/2,py-80,ppw,100);
+            ctx.fill(); ctx.stroke(); ctx.restore();
+            rTexto(ctx,precio,W/2,py,col,'bold 90px Work Sans, sans-serif');
+            if(extra) rTexto(ctx,extra,W/2,py+90,'rgba(255,255,255,0.75)','italic 55px Georgia, serif');
+        }
+
+        function dibujarRedesAbierto(ctx, W, H) {
+            const hora = document.getElementById('redesAbHora').value || '6:00';
+            const extra = document.getElementById('redesAbExtra').value;
+            const col = redesColorSel;
+
+            if (redesEstiloSel === 'grande') {
+                rTextoSticker(ctx,'Abierto',W/2,H*0.45,col,'rgba(0,0,0,0.9)','bold 210px Georgia, serif');
+            } else if (redesEstiloSel === 'elegante') {
+                rTexto(ctx,'Abierto',W/2,H*0.45,col,'italic bold 180px Georgia, serif');
+            } else {
+                rTexto(ctx,'ABIERTO',W/2,H*0.45,col,'bold 150px Work Sans, sans-serif');
+            }
+            // Línea decorativa
+            ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=5; ctx.globalAlpha=0.5;
+            ctx.beginPath(); ctx.moveTo(W*0.2,H*0.52); ctx.lineTo(W*0.8,H*0.52); ctx.stroke();
+            ctx.restore();
+            rTexto(ctx,`desde las ${hora}`,W/2,H*0.60,'rgba(255,255,255,0.9)','bold 75px Work Sans, sans-serif');
+            if(extra) rTexto(ctx,extra,W/2,H*0.68,'rgba(255,255,255,0.7)','italic 58px Georgia, serif');
+        }
+
+        function dibujarRedesDiaSemana(ctx, W, H) {
+            const dia = (document.getElementById('redesDsDia').value||'VIERNES').toUpperCase();
+            const extra = document.getElementById('redesDsExtra').value;
+            const col = redesColorSel;
+
+            // Sombra de fondo del día
+            ctx.save();
+            ctx.font='bold 260px Work Sans, sans-serif'; ctx.textAlign='center';
+            ctx.globalAlpha=0.07; ctx.fillStyle='#fff';
+            ctx.fillText(dia,W/2,H*0.55);
+            ctx.restore();
+
+            if (redesEstiloSel === 'elegante') {
+                rTexto(ctx,dia,W/2,H*0.47,col,'italic bold 200px Georgia, serif');
+            } else {
+                rTextoSticker(ctx,dia,W/2,H*0.47,col,'rgba(0,0,0,0.9)','bold 230px Work Sans, sans-serif');
+            }
+            if(extra) rTexto(ctx,extra,W/2,H*0.60,'rgba(255,255,255,0.85)','italic 70px Georgia, serif');
+        }
+
+        function dibujarRedesFooter(ctx, W, H) {
+            // Badge @elpanerabar abajo centrado
+            ctx.save();
+            ctx.font='bold 58px Work Sans, sans-serif'; ctx.textAlign='center';
+            const tw = ctx.measureText('@ELPANERABAR').width;
+            const bw = tw+80, bh=90, bx=W/2-bw/2, by=H-180;
+            ctx.fillStyle='rgba(255,255,255,0.18)';
+            ctx.strokeStyle='rgba(255,255,255,0.5)'; ctx.lineWidth=3;
+            if(ctx.roundRect) ctx.roundRect(bx,by,bw,bh,45); else ctx.rect(bx,by,bw,bh);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle='#fff'; ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=10;
+            ctx.fillText('@ELPANERABAR', W/2, by+60);
+            // Pin de ubicación
+            ctx.font='46px Work Sans, sans-serif'; ctx.fillStyle='rgba(255,255,255,0.55)';
+            ctx.fillText('📍 El Panera Bar · Llanera', W/2, H-62);
+            ctx.restore();
+        }
+
+        // Wrap básico de texto por longitud
+        function wrapText(txt, maxChars) {
+            if(txt.length<=maxChars) return [txt];
+            const words=txt.split(' '); const lines=[]; let cur='';
+            words.forEach(w=>{
+                if((cur+' '+w).trim().length>maxChars){if(cur)lines.push(cur.trim());cur=w;}
+                else{cur=(cur+' '+w).trim();}
+            });
+            if(cur)lines.push(cur.trim());
+            return lines;
+        }
+
+        function descargarRedes() {
+            if (!lastRedesCanvas) return;
+            const link = document.createElement('a');
+            link.download = `PaneraBar_${redesTipoActual}_${Date.now()}.png`;
+            link.href = lastRedesCanvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Extender compartirWhatsApp para redes
+        const _compartirWA_orig = compartirWhatsApp;
+        function compartirWhatsApp(tipo) {
+            if (tipo === 'redes') {
+                if (!lastRedesCanvas) return;
+                lastRedesCanvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url; a.download = `PaneraBar_post.png`; a.click();
+                    setTimeout(()=>URL.revokeObjectURL(url),1000);
+                    setTimeout(()=>window.open('https://wa.me/?text=El%20Panera%20Bar%20%F0%9F%8D%A2','_blank'),400);
+                },'image/png');
+            } else {
+                _compartirWA_orig(tipo);
+            }
+        }
+
+        // Init redes grid
+        document.addEventListener('DOMContentLoaded', () => { renderRedesFotoGrid('comida'); });
 
         // Cargar semana al iniciar
         try { menuSemana = JSON.parse(localStorage.getItem('paneraMenuSemana')||'{}'); } catch(e){ menuSemana={}; }
