@@ -5376,20 +5376,29 @@
         // Documentos requeridos fijos con estado de subida
         const DOC_REQUERIDOS = [
             // OBLIGATORIOS
-            { tipo: 'Licencia de Apertura',               obligatorio: true  },
-            { tipo: 'Plan de Autocontrol APPCC',           obligatorio: true  },
-            { tipo: 'Prevención de Riesgos Laborales',     obligatorio: true  },
-            { tipo: 'Diplomas Manipulador de Alimentos',   obligatorio: true  },
-            { tipo: 'Control de Plagas (empresa externa)', obligatorio: true  },
-            { tipo: 'Análisis de Agua',                    obligatorio: true  },
-            { tipo: 'Seguro de Responsabilidad Civil',     obligatorio: true  },
-            { tipo: 'Carta de Alérgenos',                  obligatorio: true  },
-            { tipo: 'Registro Sanitario',                  obligatorio: true  },
-            // OPCIONALES / RECOMENDADOS
-            { tipo: 'Contrato de mantenimiento equipos',   obligatorio: false },
-            { tipo: 'Fichas técnicas de productos',        obligatorio: false },
-            { tipo: 'Libro de visitas inspección',         obligatorio: false },
-            { tipo: 'Póliza seguro incendios',             obligatorio: false },
+            { tipo: 'Licencia de Apertura',               obligatorio: true,  enlace: 'https://drive.google.com/file/d/1kIkddwcrcflNIIjZnfMuE-7eTS3lq9uO/view' },
+            { tipo: 'Registro Sanitario',                  obligatorio: true,  enlace: 'https://drive.google.com/file/d/1i957JY0IRzj6aKSS62F80ZDlEwMuwIOu/view' },
+            { tipo: 'Carta de Alérgenos',                  obligatorio: true,  enlace: 'https://drive.google.com/file/d/1smMMS5XFvsp64VE3Qw_cjRAi7KJNV8se/view' },
+            { tipo: 'Protocolo Acoso Sexual y Laboral',    obligatorio: true,  enlace: 'https://drive.google.com/file/d/1IJUX6WZREC1zua89LXXODNcT1vXl9jGk/view' },
+            { tipo: 'Seguro de Responsabilidad Civil',     obligatorio: true,  enlace: 'https://drive.google.com/file/d/1415lUnmoLqgyv2ZI-XMRgNbZPHgYBtrO/view' },
+            { tipo: 'Póliza de Seguro',                    obligatorio: true,  enlace: 'https://drive.google.com/file/d/11_rrgbkkty_n0-CJ0vRv6lY4DnhSmXyC/view' },
+            { tipo: 'Plan de Autocontrol APPCC',           obligatorio: true,  enlace: '' },
+            { tipo: 'Prevención de Riesgos Laborales',     obligatorio: true,  enlace: '' },
+            { tipo: 'Diplomas Manipulador de Alimentos',   obligatorio: true,  enlace: '' },
+            { tipo: 'Control de Plagas (empresa externa)', obligatorio: true,  enlace: '' },
+            { tipo: 'Análisis de Agua',                    obligatorio: true,  enlace: '' },
+            // PROCEDIMIENTOS OPERATIVOS
+            { tipo: 'Recepción de Materias Primas',        obligatorio: false, enlace: 'https://drive.google.com/file/d/1mSZrsMmSKjnubHCXBqQu76nEnJsCUddp/view' },
+            { tipo: 'Programa de Limpieza y Desinfección', obligatorio: false, enlace: 'https://drive.google.com/file/d/1NylAnsixDboyNRe1-z9Psjq1D8dIzwdP/view' },
+            // ADMINISTRATIVO
+            { tipo: 'Alta Hacienda (Modelo 037)',          obligatorio: false, enlace: 'https://drive.google.com/file/d/1bKUSCFG4wQ40cSwCsJNpfSjRm8pMYZ6D/view' },
+            { tipo: 'Alta Autónomos',                      obligatorio: false, enlace: 'https://drive.google.com/file/d/1WDVnsOaBthUenQ-dF9-HAnj-ssUv-Jgq/view' },
+            // CONTRATOS
+            { tipo: 'Contratos de Trabajo',                obligatorio: false, enlace: 'https://drive.google.com/drive/folders/1khCdfOL2jsgkjTDy995ScTayqZHjimWR/view' },
+            // RECOMENDADOS
+            { tipo: 'Contrato de mantenimiento equipos',   obligatorio: false, enlace: '' },
+            { tipo: 'Fichas técnicas de productos',        obligatorio: false, enlace: '' },
+            { tipo: 'Libro de visitas inspección',         obligatorio: false, enlace: '' },
         ];
 
         function renderDocRequeridos() {
@@ -5397,12 +5406,13 @@
             if (!el) return;
 
             const rows = DOC_REQUERIDOS.map(doc => {
-                // Buscar si ya hay un documento registrado de este tipo
+                // Enlace directo desde el array (Drive), o buscar en documentos registrados
                 const registrado = data.documentos.find(d =>
                     (d.tipo || d['Tipo'] || '').toLowerCase().includes(doc.tipo.toLowerCase().split(' ')[0].toLowerCase())
                 );
-                const enlace = registrado ? (registrado.enlace || registrado['Enlace'] || '') : '';
-                const estado = registrado
+                const enlace = doc.enlace || (registrado ? (registrado.enlace || registrado['Enlace'] || '') : '');
+                const tiene = doc.enlace || registrado;
+                const estado = tiene
                     ? (enlace ? `<a href="${enlace}" target="_blank" style="color:#27AE60;font-weight:700;">✅ Ver documento</a>`
                               : `<span style="color:#F39C12;font-weight:600;">⚠️ Registrado sin enlace</span>`)
                     : `<span style="color:#E8623A;font-weight:600;">📤 Pendiente de subir</span>`;
