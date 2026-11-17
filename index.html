@@ -831,7 +831,7 @@
 
         /* Preview pizarra canvas */
         .piz-preview-wrap { background:rgba(0,0,0,0.3); border-radius:16px; padding:16px; margin-bottom:16px; text-align:center; }
-        .piz-preview-wrap canvas { max-width:100%; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
+        .piz-preview-wrap canvas { max-width:100%; height:auto; display:block; margin:0 auto; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.5); }
         .piz-preview-wrap p { color:rgba(255,255,255,0.4); font-size:12px; margin-top:10px; }
 
         /* Botones acción pizarra */
@@ -1747,8 +1747,15 @@
                             </div>
                             <div class="foto-thumbs" id="cartFotoGrid"></div>
                             <div style="margin-top:8px;">
-                                <button class="foto-sin-fondo-btn active" id="btnSinFondo" onclick="cartSinFondo()">✖ Sin foto (pizarra negra)</button>
+                                <button class="foto-sin-fondo-btn active" id="btnSinFondo" onclick="cartSinFondo()">&#x2716; Sin foto (pizarra negra)</button>
                             </div>
+                        </div>
+
+                        <!-- Stickers El Panera — Cartelería -->
+                        <div class="cart-seccion piz-form-card">
+                            <div class="cart-label">🏷️ Stickers (máx. 3)</div>
+                            <div class="sticker-grid" id="cartStickerGrid"></div>
+                            <div style="margin-top:6px;font-size:11px;color:rgba(255,255,255,0.45);">Toca para añadir/quitar · Se colocan automáticamente</div>
                         </div>
 
                         <button class="piz-generate-btn" onclick="generarCartel()">🎨 Generar Cartel</button>
@@ -6125,6 +6132,7 @@
         ========================================================= */
         let cartTipoActual = 'cerrado';
         let cartFotoSeleccionada = null; // null = sin foto
+        let cartStickersSel = []; // stickers activos en cartelería
 
         // Catálogo de stickers El Panera
         const STICKERS_CATALOG = [
@@ -6194,6 +6202,34 @@
             document.getElementById('btnSinFondo').classList.add('active');
         }
 
+        function renderCartStickerGrid() {
+            const grid = document.getElementById('cartStickerGrid');
+            if (!grid) return;
+            grid.innerHTML = STICKERS_CATALOG.map(s => {
+                const sel = cartStickersSel.includes(s.src) ? 'selected' : '';
+                return `<div class="sticker-thumb ${sel}" onclick="cartToggleSticker('${s.src}',this)" title="${s.label}">
+                    <img src="${s.src}" alt="${s.label}" loading="lazy">
+                    <span class="sticker-label">${s.label}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function cartToggleSticker(src, el) {
+            if (cartStickersSel.includes(src)) {
+                cartStickersSel = cartStickersSel.filter(s => s !== src);
+                el.classList.remove('selected');
+            } else {
+                if (cartStickersSel.length >= 3) {
+                    cartStickersSel.shift();
+                    document.querySelectorAll('#cartStickerGrid .sticker-thumb.selected')[0]?.classList.remove('selected');
+                }
+                cartStickersSel.push(src);
+                el.classList.add('selected');
+            }
+        }
+
+        }
+
         // Inicializar grid al cargar
         document.addEventListener('DOMContentLoaded', () => { renderFotoGrid('comida'); });
 
@@ -6239,8 +6275,38 @@
 
                 chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.28)', '22px Georgia, serif');
 
-                document.getElementById('cartPreviewWrap').style.display = 'block';
-                lastCartCanvas = canvas;
+                // Stickers encima del cartel
+                // Posiciones esquina inferior derecha / superior izquierda / centro derecho
+                const cartStickerPos = [
+                    { x: W*0.78, y: H*0.82, size: 220 },
+                    { x: W*0.18, y: H*0.72, size: 200 },
+                    { x: W*0.78, y: H*0.35, size: 180 }
+                ];
+                const cartStickers = cartStickersSel.slice(0,3);
+                if (cartStickers.length === 0) {
+                    document.getElementById('cartPreviewWrap').style.display = 'block';
+                    lastCartCanvas = canvas;
+                } else {
+                    let loaded = 0;
+                    cartStickers.forEach((src, i) => {
+                        const simg = new Image();
+                        simg.onload = () => {
+                            const p = cartStickerPos[i];
+                            ctx.save();
+                            ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=16; ctx.shadowOffsetX=5; ctx.shadowOffsetY=5;
+                            ctx.drawImage(simg, p.x-p.size/2, p.y-p.size/2, p.size, p.size);
+                            ctx.restore();
+                            loaded++;
+                            if (loaded === cartStickers.length) {
+                                document.getElementById('cartPreviewWrap').style.display = 'block';
+                                lastCartCanvas = canvas;
+                            }
+                        };
+                        simg.onerror = () => { loaded++; if(loaded===cartStickers.length){document.getElementById('cartPreviewWrap').style.display='block'; lastCartCanvas=canvas;} };
+                        simg.src = src;
+                    });
+                }
+                return; // async via sticker loader
             };
 
             if (cartFotoSeleccionada) {
@@ -6791,6 +6857,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderRedesFotoGrid('comida');
             renderRedesStickerGrid();
+            renderCartStickerGrid();
         });
 
         // Cargar semana al iniciar
