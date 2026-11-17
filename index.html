@@ -1391,6 +1391,13 @@
                     <h2>Lista de Documentos registrados</h2>
                     <div id="docTable"></div>
                 </div>
+
+                <!-- Protocolo Acoso — Registro de entrega -->
+                <div class="card">
+                    <h2>📨 Protocolo Acoso — Entrega a trabajadores</h2>
+                    <p style="color:var(--warmgray);font-size:13px;margin:0 0 16px;">Registro de entrega del comunicado del Protocolo de Prevención de Acoso Sexual y Laboral (aprobado febrero 2024). <a href="https://drive.google.com/file/d/1IJUX6WZREC1zua89LXXODNcT1vXl9jGk/view" target="_blank" style="color:var(--terracotta);">Ver protocolo ↗</a></p>
+                    <div id="protocoloAcosoRegistro"></div>
+                </div>
             </div>
 
             <!-- Proveedores Section -->
@@ -5415,6 +5422,77 @@
             </table>`;
         }
 
+        // Protocolo Acoso — trabajadores y registro de entrega
+        const PROTOCOLO_TRABAJADORES = [
+            { id: 'kevin',    nombre: 'Kevin' },
+            { id: 'caridad',  nombre: 'Caridad' },
+            { id: 'liliana',  nombre: 'Liliana' }
+        ];
+
+        function renderProtocoloAcoso() {
+            const el = document.getElementById('protocoloAcosoRegistro');
+            if (!el) return;
+            const registros = JSON.parse(localStorage.getItem('protocoloAcasoEntregas') || '{}');
+            const rows = PROTOCOLO_TRABAJADORES.map(t => {
+                const entrega = registros[t.id];
+                const estadoHtml = entrega
+                    ? `<span style="color:#27AE60;font-weight:600;">✅ Enviado el ${entrega.fecha}</span>
+                       <button onclick="desmarcarProtocolo('${t.id}')" style="margin-left:10px;background:none;border:1px solid #ccc;border-radius:6px;padding:2px 8px;font-size:11px;color:#999;cursor:pointer;">Deshacer</button>`
+                    : `<button onclick="marcarProtocolo('${t.id}')" style="background:var(--terracotta);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:13px;font-weight:600;cursor:pointer;">📤 Marcar como enviado</button>`;
+                return `<tr>
+                    <td style="font-weight:600;font-size:15px;">${t.nombre}</td>
+                    <td>${estadoHtml}</td>
+                    <td><button onclick="verComunicado('${t.nombre}')" style="background:none;border:1px solid var(--terracotta);color:var(--terracotta);border-radius:8px;padding:5px 12px;font-size:12px;cursor:pointer;">Ver comunicado</button></td>
+                </tr>`;
+            }).join('');
+            el.innerHTML = `<table class="data-table">
+                <thead><tr><th>Trabajador/a</th><th>Estado</th><th>Comunicado</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>`;
+        }
+
+        function marcarProtocolo(id) {
+            const registros = JSON.parse(localStorage.getItem('protocoloAcasoEntregas') || '{}');
+            const hoy = new Date().toLocaleDateString('es-ES');
+            registros[id] = { fecha: hoy, timestamp: Date.now() };
+            localStorage.setItem('protocoloAcasoEntregas', JSON.stringify(registros));
+            renderProtocoloAcoso();
+            toast('✅ Entrega registrada');
+        }
+
+        function desmarcarProtocolo(id) {
+            const registros = JSON.parse(localStorage.getItem('protocoloAcasoEntregas') || '{}');
+            delete registros[id];
+            localStorage.setItem('protocoloAcasoEntregas', JSON.stringify(registros));
+            renderProtocoloAcoso();
+        }
+
+        function verComunicado(nombre) {
+            const fecha = new Date().toLocaleDateString('es-ES', {day:'numeric', month:'long', year:'numeric'});
+            const html = `
+                <div style="font-family:Georgia,serif;max-width:600px;margin:0 auto;padding:30px;line-height:1.8;color:#222;">
+                <p>En Llanera, a ${fecha}</p>
+                <p><strong>Estimado/a trabajador/a ${nombre},</strong></p>
+                <p>Ponemos en vuestro conocimiento que, en aplicación de la normativa vigente en materia de Igualdad Efectiva de Mujeres y Hombres (Ley Orgánica 3/2007, de 22 de marzo y Real Decreto 901/2020, de 13 de octubre) y de la Constitución Española, del Estatuto de los Trabajadores en su redacción vigente, de la Ley de Prevención de Riesgos laborales y de la Ley Orgánica 10/2022, de 6 de septiembre de Garantía Integral de la Libertad Sexual:</p>
+                <p>En febrero de 2024 se ha aprobado el <strong>PROTOCOLO DE ACOSO LABORAL</strong> y el <strong>PROTOCOLO DE ACOSO SEXUAL Y POR RAZÓN DE SEXO</strong> incluyendo las conductas realizadas por medios telemáticos. Ambos textos se encuentran a su plena disposición en: <a href="https://drive.google.com/file/d/1IJUX6WZREC1zua89LXXODNcT1vXl9jGk/view" target="_blank">enlace al protocolo</a>, cuyo texto íntegro declara con su firma haber recibido en este acto.</p>
+                <p>Esta empresa ha diseñado un sistema específico de denuncia e investigación de las posibles conductas de acoso sexual y por razón de sexo que atiende a los principios de objetividad y celeridad.</p>
+                <p>La dignidad humana, la integridad física y moral, la seguridad y salud de las personas de nuestra plantilla forman parte de los valores esenciales de esta empresa. Las conductas vejatorias, de acoso laboral, sexual o por razón de sexo no están admitidas en nuestra empresa.</p>
+                <p><strong>CANAL DENUNCIA:</strong> <a href="mailto:elpanerabar@gmail.com">elpanerabar@gmail.com</a></p>
+                <p>Les invitamos a conocer el contenido íntegro de los protocolos pudiendo dirigir las dudas mediante el envío de un correo electrónico a <a href="mailto:elpanerabar@gmail.com">elpanerabar@gmail.com</a></p>
+                <p>Agradecemos sinceramente su colaboración.</p>
+                <p>Un atento saludo,<br><strong>El Panera Bar</strong></p>
+                </div>`;
+            const w = window.open('', '_blank', 'width=700,height=800');
+            w.document.write(`<!DOCTYPE html><html><head><title>Comunicado ${nombre}</title>
+            <meta charset="UTF-8">
+            <style>body{background:#fff;} @media print{button{display:none;}}</style>
+            </head><body>${html}
+            <div style="text-align:center;margin:20px;">
+                <button onclick="window.print()" style="background:#D97642;color:#fff;border:none;padding:10px 24px;border-radius:8px;font-size:14px;cursor:pointer;">🖨️ Imprimir / Guardar PDF</button>
+            </div></body></html>`);
+            w.document.close();
+        }
+
         function renderDocTable() {
             renderDocRequeridos();
             const html = data.documentos.length ? `
@@ -5514,6 +5592,7 @@
             renderRecTable();
             renderCongTable();
             renderDocTable();
+            renderProtocoloAcoso();
             renderProvTable();
         }
 
