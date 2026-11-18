@@ -4310,43 +4310,38 @@
             updateDashboard();
         }
 
-        // Login
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const user = document.getElementById('loginUser').value;
-            const pass = document.getElementById('loginPass').value;
-            
-            // Verificar credenciales (simplificado - en producción usar hash)
-            const validUsers = {
-                'elpanera': 'elpanera2015',
-                'david': 'elpanera2015',
-                'lili': 'elpanera2015',
-            };
-
-            if (validUsers[user] === pass) {
-                currentUser = user;
-                localStorage.setItem('appcc_user', user);
-                document.getElementById('currentUser').textContent = user.charAt(0).toUpperCase() + user.slice(1);
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('appContainer').classList.add('active');
-                
-                // Mostrar dashboard inmediatamente
-                updateDashboard();
-                setDefaultDates();
-                // Cargar datos en segundo plano
-                try {
-                    await loadData();
-                } catch (error) {
-                    console.error('Error al cargar datos:', error);
-                    // Sin alert — el dashboard ya está visible
-                }
-            } else {
-                alert('Usuario o contraseña incorrectos');
-            }
-        });
-
         // Auto-login si hay sesión
         window.onload = async () => {
+            // Login — registrado aquí para garantizar que el DOM está listo
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const user = document.getElementById('loginUser').value.trim().toLowerCase();
+                const pass = document.getElementById('loginPass').value.trim();
+
+                const validUsers = {
+                    'elpanera': 'elpanera2015',
+                    'david': 'elpanera2015',
+                    'lili': 'elpanera2015',
+                };
+
+                if (validUsers[user] === pass) {
+                    currentUser = user;
+                    localStorage.setItem('appcc_user', user);
+                    document.getElementById('currentUser').textContent = user.charAt(0).toUpperCase() + user.slice(1);
+                    document.getElementById('loginScreen').style.display = 'none';
+                    document.getElementById('appContainer').classList.add('active');
+
+                    updateDashboard();
+                    setDefaultDates();
+                    try {
+                        await loadData();
+                    } catch (error) {
+                        console.error('Error al cargar datos:', error);
+                    }
+                } else {
+                    alert('Usuario o contraseña incorrectos');
+                }
+            });
             inicializarFirmas();
             const savedUser = localStorage.getItem('appcc_user');
             if (savedUser) {
