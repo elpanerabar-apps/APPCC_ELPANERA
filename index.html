@@ -856,6 +856,14 @@
         .cart-tipo-btn:hover { border-color:rgba(255,255,255,0.3); }
         .cart-tipo-icon { font-size:28px; display:block; margin-bottom:6px; }
         .cart-tipo-label { color:rgba(255,255,255,0.8); font-size:12px; font-weight:700; }
+        /* Selector de estilos de diseño */
+        .cart-estilo-wrap { margin-bottom:0; }
+        .cart-estilos { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+        .cart-estilo-btn { background:rgba(255,255,255,0.04); border:2px solid rgba(255,255,255,0.12); border-radius:12px; padding:10px 6px 8px; cursor:pointer; text-align:center; transition:all .2s; }
+        .cart-estilo-btn.active { border-color:#E8623A; background:rgba(232,98,58,0.18); }
+        .cart-estilo-btn:hover { border-color:rgba(255,255,255,0.3); }
+        .cart-estilo-preview { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin:0 auto 6px; font-size:18px; }
+        .cart-estilo-label { color:rgba(255,255,255,0.75); font-size:10px; font-weight:700; display:block; letter-spacing:.03em; }
 
         /* ===== REDES SOCIALES ===== */
         .redes-screen { background:#0d0d0d; min-height:calc(100vh - 70px); }
@@ -1741,6 +1749,29 @@
                             <input id="cartHorLinea1" class="piz-input" placeholder="Horario 1 (ej: Lunes a Jueves: 6:00 a 15:00)" />
                             <input id="cartHorLinea2" class="piz-input" placeholder="Horario 2 (ej: Viernes: 6:00 a cierre)" />
                             <input id="cartHorLinea3" class="piz-input" placeholder="Horario 3 (opcional)" />
+                        </div>
+
+                        <!-- Selector de estilo de diseño -->
+                        <div class="cart-estilo-wrap piz-form-card">
+                            <span class="foto-selector-label">🎨 Estilo de diseño</span>
+                            <div class="cart-estilos" id="cartEstilos">
+                                <button class="cart-estilo-btn active" data-estilo="pizarra" onclick="cartSelEstilo(this)">
+                                    <span class="cart-estilo-preview" style="background:#1a1a1a;">🖤</span>
+                                    <span class="cart-estilo-label">Pizarra</span>
+                                </button>
+                                <button class="cart-estilo-btn" data-estilo="moderno" onclick="cartSelEstilo(this)">
+                                    <span class="cart-estilo-preview" style="background:linear-gradient(135deg,#1a1a2e,#16213e);">💎</span>
+                                    <span class="cart-estilo-label">Moderno</span>
+                                </button>
+                                <button class="cart-estilo-btn" data-estilo="calido" onclick="cartSelEstilo(this)">
+                                    <span class="cart-estilo-preview" style="background:linear-gradient(135deg,#2c1810,#5c2d1e);">🧡</span>
+                                    <span class="cart-estilo-label">Cálido</span>
+                                </button>
+                                <button class="cart-estilo-btn" data-estilo="claro" onclick="cartSelEstilo(this)">
+                                    <span class="cart-estilo-preview" style="background:linear-gradient(135deg,#f5f0e8,#e8ddd0);">☀️</span>
+                                    <span class="cart-estilo-label">Claro</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- Selector de foto de fondo -->
@@ -6217,6 +6248,13 @@
         let cartTipoActual = 'cerrado';
         let cartFotoSeleccionada = null; // null = sin foto
         let cartStickersSel = []; // stickers activos en cartelería
+        let cartEstiloActual = 'pizarra'; // pizarra | moderno | calido | claro
+
+        function cartSelEstilo(btn) {
+            document.querySelectorAll('.cart-estilo-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            cartEstiloActual = btn.dataset.estilo;
+        }
 
         // Catálogo de stickers El Panera
         const STICKERS_CATALOG = [
@@ -6325,25 +6363,142 @@
             document.getElementById('cartPreviewWrap').style.display = 'none';
         }
 
+        // Paletas y configuración por estilo
+        const CART_ESTILOS = {
+            pizarra: {
+                bg: '#1a1a1a',
+                overlayFoto: 'rgba(10,10,10,0.52)',
+                overlayGradient: null,
+                accent: '#F07040',
+                accentAlt: '#E8623A',
+                textPrincipal: 'rgba(255,255,255,0.97)',
+                textSecundario: 'rgba(255,255,255,0.75)',
+                textSutil: 'rgba(255,255,255,0.4)',
+                fontTitulo: 'bold italic 96px Georgia, serif',
+                fontSubtitulo: 'bold 58px Georgia, serif',
+                fontCuerpo: '44px Georgia, serif',
+                fontPrecio: 'bold 90px Georgia, serif',
+                fontFooter: '20px Georgia, serif',
+                marco: true,
+                separador: (ctx,x1,y,x2) => { chalkLine(ctx,x1,y,x2,y,'#F07040',4); chalkLine(ctx,x1+20,y+10,x2-20,y+10,'rgba(240,112,64,0.3)',2); }
+            },
+            moderno: {
+                bg: null, // gradiente
+                bgGrad: ['#0d0d1a','#1a1a2e','#16213e'],
+                overlayFoto: 'rgba(5,5,20,0.55)',
+                overlayGradient: ['rgba(13,13,26,0.0)','rgba(13,13,26,0.75)'],
+                accent: '#7B61FF',
+                accentAlt: '#00D4FF',
+                textPrincipal: '#FFFFFF',
+                textSecundario: 'rgba(255,255,255,0.85)',
+                textSutil: 'rgba(255,255,255,0.45)',
+                fontTitulo: 'bold 100px "Trebuchet MS", Arial, sans-serif',
+                fontSubtitulo: '600 56px "Trebuchet MS", Arial, sans-serif',
+                fontCuerpo: '42px "Trebuchet MS", Arial, sans-serif',
+                fontPrecio: 'bold 94px "Trebuchet MS", Arial, sans-serif',
+                fontFooter: '18px "Trebuchet MS", Arial, sans-serif',
+                marco: false,
+                separador: (ctx,x1,y,x2,c='#7B61FF') => { ctx.save(); ctx.strokeStyle=c; ctx.lineWidth=3; ctx.setLineDash([8,6]); ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke(); ctx.setLineDash([]); ctx.restore(); }
+            },
+            calido: {
+                bg: null,
+                bgGrad: ['#1a0d08','#2c1810','#3d2015'],
+                overlayFoto: 'rgba(20,8,2,0.50)',
+                overlayGradient: ['rgba(26,13,8,0.0)','rgba(26,13,8,0.72)'],
+                accent: '#FF9B42',
+                accentAlt: '#FF6B35',
+                textPrincipal: '#FFF5E6',
+                textSecundario: 'rgba(255,235,200,0.85)',
+                textSutil: 'rgba(255,210,160,0.45)',
+                fontTitulo: 'bold italic 94px Georgia, "Times New Roman", serif',
+                fontSubtitulo: 'bold 55px Georgia, serif',
+                fontCuerpo: '43px Georgia, serif',
+                fontPrecio: 'bold 88px Georgia, serif',
+                fontFooter: 'italic 19px Georgia, serif',
+                marco: false,
+                separador: (ctx,x1,y,x2,c='#FF9B42') => { ctx.save(); ctx.strokeStyle=c; ctx.lineWidth=3; ctx.globalAlpha=0.9; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke(); ctx.restore(); }
+            },
+            claro: {
+                bg: '#f5f0e8',
+                overlayFoto: 'rgba(245,240,232,0.60)',
+                overlayGradient: ['rgba(245,240,232,0.0)','rgba(245,240,232,0.78)'],
+                accent: '#C0392B',
+                accentAlt: '#E74C3C',
+                textPrincipal: '#1a1008',
+                textSecundario: '#3a2a18',
+                textSutil: 'rgba(50,30,10,0.5)',
+                fontTitulo: 'bold italic 96px Georgia, serif',
+                fontSubtitulo: 'bold 55px Georgia, serif',
+                fontCuerpo: '42px Georgia, serif',
+                fontPrecio: 'bold 90px Georgia, serif',
+                fontFooter: 'italic 19px Georgia, serif',
+                marco: false,
+                separador: (ctx,x1,y,x2,c='#C0392B') => { ctx.save(); ctx.strokeStyle=c; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2,y); ctx.stroke(); ctx.restore(); }
+            }
+        };
+
+        function aplicarFondoEstilo(ctx, W, H, estilo) {
+            const E = CART_ESTILOS[estilo];
+            if (E.bgGrad) {
+                const g = ctx.createLinearGradient(0,0,W,H);
+                E.bgGrad.forEach((c,i) => g.addColorStop(i/(E.bgGrad.length-1),c));
+                ctx.fillStyle = g;
+            } else {
+                ctx.fillStyle = E.bg;
+            }
+            ctx.fillRect(0,0,W,H);
+        }
+
+        function aplicarOverlayFoto(ctx, W, H, estilo) {
+            const E = CART_ESTILOS[estilo];
+            if (E.overlayGradient) {
+                // Gradiente vertical: transparente arriba, oscuro abajo
+                const g = ctx.createLinearGradient(0,0,0,H);
+                g.addColorStop(0, E.overlayGradient[0]);
+                g.addColorStop(0.4, E.overlayFoto.replace(/[\d.]+\)$/,'0.3)'));
+                g.addColorStop(1, E.overlayGradient[1]);
+                ctx.fillStyle = g;
+            } else {
+                ctx.fillStyle = E.overlayFoto;
+            }
+            ctx.fillRect(0,0,W,H);
+        }
+
         function generarCartel() {
             const canvas = document.getElementById('cartCanvas');
             const W = 900, H = 1100;
             canvas.width = W; canvas.height = H;
             const ctx = canvas.getContext('2d');
+            const E = CART_ESTILOS[cartEstiloActual];
 
             const dibujarContenido = () => {
-                dibujarMarco(ctx, W, H, !!cartFotoSeleccionada);
+                // Marco solo en estilo pizarra
+                if (E.marco) dibujarMarco(ctx, W, H, !!cartFotoSeleccionada);
 
-                // Cabecera común: taza + nombre
-                ctx.font = '48px serif';
+                // Cabecera: branding el Panera Bar
+                const headerColor = cartEstiloActual==='claro' ? '#1a1008' : 'rgba(255,255,255,0.95)';
+                const headerAccent = E.accent;
+                // Banda superior sutil
+                if (!cartFotoSeleccionada && cartEstiloActual !== 'pizarra') {
+                    const hg = ctx.createLinearGradient(0,0,0,160);
+                    hg.addColorStop(0,'rgba(0,0,0,0.25)'); hg.addColorStop(1,'rgba(0,0,0,0)');
+                    ctx.fillStyle = hg;
+                    ctx.fillRect(0,0,W,160);
+                }
+                ctx.font = '44px serif';
                 ctx.textAlign = 'left';
-                ctx.fillText('☕', 68, 118);
-                chalkText(ctx, 'el Panera Bar', W/2+10, 118, 'rgba(255,255,255,0.95)', 'italic bold 50px Georgia, serif');
-                // Estrellas decorativas
-                ['#F07040','rgba(255,255,255,0.4)','#F07040'].forEach((c,i) => {
-                    chalkText(ctx, '✦', [240,460,660,790][i]||240+i*170, 80, c, '22px serif');
-                });
-                chalkLine(ctx, W/2-190, 132, W/2+210, 132, 'rgba(255,255,255,0.5)', 2);
+                ctx.fillText('☕', 68, 112);
+                ctx.font = E.fontSubtitulo.replace(/\d+px/,'50px');
+                ctx.fillStyle = headerColor;
+                ctx.textAlign = 'center';
+                ctx.fillText('el Panera Bar', W/2+16, 112);
+                // Separador cabecera
+                E.separador(ctx, W/2-200, 130, W/2+200);
+                // Punto decorativo accent
+                ctx.fillStyle = headerAccent;
+                ctx.font = '18px serif';
+                ctx.textAlign='center';
+                ctx.fillText('✦  ✦  ✦', W/2, 155);
 
                 if (cartTipoActual === 'cerrado') {
                     dibujarCartelCerrado(ctx, W, H);
@@ -6355,10 +6510,13 @@
                     dibujarCartelHorario(ctx, W, H);
                 }
 
-                chalkText(ctx, 'Lugo de Llanera · Asturias', W/2, H-55, 'rgba(255,255,255,0.28)', '22px Georgia, serif');
+                // Footer
+                ctx.textAlign='center';
+                ctx.fillStyle = E.textSutil;
+                ctx.font = E.fontFooter;
+                ctx.fillText('Lugo de Llanera · Asturias', W/2, H-50);
 
                 // Stickers encima del cartel
-                // Posiciones esquina inferior derecha / superior izquierda / centro derecho
                 const cartStickerPos = [
                     { x: W*0.78, y: H*0.82, size: 220 },
                     { x: W*0.18, y: H*0.72, size: 200 },
@@ -6388,161 +6546,155 @@
                         simg.src = src;
                     });
                 }
-                return; // async via sticker loader
             };
 
             if (cartFotoSeleccionada) {
-                // Fondo con foto real + overlay oscuro
                 const img = new Image();
                 img.onload = () => {
-                    // Cubrir canvas manteniendo proporción (cover)
                     const iR = img.width / img.height;
                     const cR = W / H;
                     let sx=0,sy=0,sw=img.width,sh=img.height;
                     if (iR > cR) { sw = img.height*cR; sx=(img.width-sw)/2; }
                     else          { sh = img.width/cR; sy=(img.height-sh)/2; }
                     ctx.drawImage(img, sx, sy, sw, sh, 0, 0, W, H);
-
-                    // Overlay oscuro para legibilidad del texto de pizarra
-                    ctx.fillStyle = 'rgba(10,10,10,0.62)';
-                    ctx.fillRect(0, 0, W, H);
-
+                    // Overlay según estilo — mucho más sutil
+                    aplicarOverlayFoto(ctx, W, H, cartEstiloActual);
                     dibujarContenido();
                 };
                 img.onerror = () => {
-                    // Si falla la carga, fondo negro pizarra
-                    ctx.fillStyle = '#1a1a1a';
-                    ctx.fillRect(0, 0, W, H);
+                    aplicarFondoEstilo(ctx, W, H, cartEstiloActual);
                     dibujarContenido();
                 };
                 img.src = cartFotoSeleccionada;
             } else {
-                // Sin foto: fondo pizarra negro estándar
-                ctx.fillStyle = '#1a1a1a';
-                ctx.fillRect(0, 0, W, H);
+                aplicarFondoEstilo(ctx, W, H, cartEstiloActual);
                 dibujarContenido();
             }
         }
 
         function dibujarCartelCerrado(ctx, W, H) {
+            const E = CART_ESTILOS[cartEstiloActual];
             const dia = document.getElementById('cartCerradoDia').value || 'Mañana';
             const msg = document.getElementById('cartCerradoMsg').value || '¡Os esperamos pronto! ❤️';
 
-            // "HOY" o día — grande, terracota
-            chalkText(ctx, dia.toUpperCase(), W/2, 230, '#F07040', 'bold 80px Georgia, serif');
-            chalkLine(ctx, 100, 248, W-100, 248, '#F07040', 3);
+            // Día
+            chalkText(ctx, dia.toUpperCase(), W/2, 240, E.accent, 'bold 78px Georgia, serif');
+            E.separador(ctx, 100, 258, W-100);
 
-            // CERRADO — enorme, efecto pizarra
-            // Fondo degradado cálido para el bloque CERRADO
+            // Bloque CERRADO con fondo
             const rg = ctx.createLinearGradient(80,290,80,500);
-            rg.addColorStop(0,'rgba(180,30,30,0.18)');
+            rg.addColorStop(0,'rgba(180,30,30,0.22)');
             rg.addColorStop(1,'rgba(100,10,10,0.08)');
             ctx.fillStyle = rg;
             ctx.beginPath();
             if(ctx.roundRect) ctx.roundRect(80,290,W-160,210,20); else ctx.rect(80,290,W-160,210);
             ctx.fill();
 
-            chalkText(ctx, 'CERRADO', W/2, 435, 'rgba(255,255,255,0.97)', 'bold 110px Georgia, serif');
-            // Subrayado doble dramático
-            chalkLine(ctx, 80, 455, W-80, 455, '#F07040', 4);
-            chalkLine(ctx, 100, 465, W-100, 465, 'rgba(240,112,64,0.35)', 2);
+            chalkText(ctx, 'CERRADO', W/2, 440, E.textPrincipal, E.fontTitulo.replace(/\d+px/,'108px'));
+            E.separador(ctx, 80, 462, W-80);
 
             // Mensaje
-            chalkText(ctx, msg, W/2, 580, 'rgba(255,255,255,0.88)', 'italic 42px Georgia, serif');
+            chalkText(ctx, msg, W/2, 580, E.textSecundario, 'italic 40px Georgia, serif');
 
-            // Decoración
-            ctx.font = '58px serif'; ctx.textAlign='center';
+            ctx.font = '56px serif'; ctx.textAlign='center';
             ctx.fillText('❤️', W/2, 700);
-            chalkLine(ctx, W/2-80, 730, W/2+80, 730, 'rgba(255,255,255,0.2)', 1);
+            ctx.fillStyle = E.textSutil;
+            ctx.fillRect(W/2-80, 728, 160, 1);
         }
 
         function dibujarCartelVacaciones(ctx, W, H) {
+            const E = CART_ESTILOS[cartEstiloActual];
             const desde = document.getElementById('cartVacDesde').value || '';
             const hasta = document.getElementById('cartVacHasta').value || '';
             const msg = document.getElementById('cartVacMsg').value || '¡Hasta pronto! ❤️';
 
-            // VACACIONES — grande y llamativo
-            ctx.font = '58px serif'; ctx.textAlign='center';
+            ctx.font = '54px serif'; ctx.textAlign='center';
             ctx.fillText('🏖️', W/2-240, 230);
             ctx.fillText('🏖️', W/2+240, 230);
-            chalkText(ctx, 'VACACIONES', W/2, 240, '#F07040', 'bold 90px Georgia, serif');
-            chalkLine(ctx, 80, 258, W-80, 258, '#F07040', 4);
-            chalkLine(ctx, 100, 268, W-100, 268, 'rgba(240,112,64,0.3)', 2);
+            chalkText(ctx, 'VACACIONES', W/2, 240, E.accent, E.fontTitulo.replace(/\d+px/,'88px'));
+            E.separador(ctx, 80, 258, W-80);
 
-            chalkText(ctx, 'Estamos de descanso', W/2, 335, 'rgba(255,255,255,0.75)', '36px Georgia, serif');
+            chalkText(ctx, 'Estamos de descanso', W/2, 335, E.textSecundario, '36px Georgia, serif');
 
             if (desde||hasta) {
-                // Bloque de fechas destacado
                 const fg = ctx.createLinearGradient(80,360,80,440);
-                fg.addColorStop(0,'rgba(240,112,64,0.18)');
-                fg.addColorStop(1,'rgba(240,112,64,0.05)');
+                fg.addColorStop(0,E.accent.replace('rgb','rgba').replace(')',',0.20)').replace('#','rgba(').replace(/rgba\(([0-9a-fA-F]{2})([0-9a-fA-F]{2})([0-9a-fA-F]{2}),0\.20\)/,(_,r,g,b)=>`rgba(${parseInt(r,16)},${parseInt(g,16)},${parseInt(b,16)},0.20)`)||'rgba(240,112,64,0.18)');
+                fg.addColorStop(1,'rgba(0,0,0,0.0)');
                 ctx.fillStyle=fg;
                 ctx.beginPath();
                 if(ctx.roundRect) ctx.roundRect(80,360,W-160,80,16); else ctx.rect(80,360,W-160,80);
                 ctx.fill();
-                chalkText(ctx, `Del ${desde}  al  ${hasta}`, W/2, 412, 'rgba(255,255,255,0.97)', 'bold 42px Georgia, serif');
+                chalkText(ctx, `Del ${desde}  al  ${hasta}`, W/2, 412, E.textPrincipal, 'bold 42px Georgia, serif');
             }
 
-            chalkText(ctx, 'Regresamos con más energía', W/2, 510, 'rgba(255,255,255,0.55)', 'italic 30px Georgia, serif');
-            chalkText(ctx, 'y mejor humor ☕', W/2, 555, 'rgba(255,255,255,0.55)', 'italic 30px Georgia, serif');
+            chalkText(ctx, 'Regresamos con más energía', W/2, 510, E.textSutil, 'italic 30px Georgia, serif');
+            chalkText(ctx, 'y mejor humor ☕', W/2, 555, E.textSutil, 'italic 30px Georgia, serif');
 
-            chalkLine(ctx, 150, 590, W-150, 590, 'rgba(255,255,255,0.2)', 1);
-            chalkText(ctx, msg, W/2, 660, '#F07040', 'italic bold 46px Georgia, serif');
-
-            ctx.font = '52px serif'; ctx.textAlign='center';
+            ctx.fillStyle = E.textSutil; ctx.fillRect(150, 590, W-300, 1);
+            chalkText(ctx, msg, W/2, 660, E.accent, 'italic bold 46px Georgia, serif');
+            ctx.font = '50px serif'; ctx.textAlign='center';
             ctx.fillText('🌴 ☀️ 🌊', W/2, 760);
         }
 
         function dibujarCartelPinchos(ctx, W, H) {
+            const E = CART_ESTILOS[cartEstiloActual];
             const p1 = document.getElementById('cartPincho1').value.trim();
             const p2 = document.getElementById('cartPincho2').value.trim();
             const p3 = document.getElementById('cartPincho3').value.trim();
             const p4 = document.getElementById('cartPincho4').value.trim();
-            const precio = document.getElementById('cartPinchoPrecio').value.trim() || '1,50 €';
+            const precioBruto = document.getElementById('cartPinchoPrecio').value.trim();
+            const precio = precioBruto || null; // null si no se introdujo
             const pinchos = [p1,p2,p3,p4].filter(Boolean);
 
-            ctx.font = '52px serif'; ctx.textAlign='center'; ctx.fillText('🍢', W/2-280, 230);
-            ctx.fillText('🍢', W/2+280, 230);
-            chalkText(ctx, 'PINCHOS', W/2, 220, '#F07040', 'bold 90px Georgia, serif');
-            chalkText(ctx, 'DEL DÍA', W/2, 282, 'rgba(255,255,255,0.88)', 'bold 56px Georgia, serif');
-            chalkLine(ctx, 80, 300, W-80, 300, '#F07040', 4);
-            chalkLine(ctx, 100, 310, W-100, 310, 'rgba(240,112,64,0.3)', 2);
+            ctx.font = '50px serif'; ctx.textAlign='center';
+            ctx.fillText('🍢', W/2-280, 225);
+            ctx.fillText('🍢', W/2+280, 225);
+            chalkText(ctx, 'PINCHOS', W/2, 220, E.accent, E.fontTitulo.replace(/\d+px/,'88px'));
+            chalkText(ctx, 'DEL DÍA', W/2, 282, E.textSecundario, E.fontSubtitulo.replace(/\d+px/,'54px'));
+            E.separador(ctx, 80, 302, W-80);
 
             let y = 390;
-            pinchos.forEach(p => {
-                chalkText(ctx, '✦', 80, y, '#F07040', 'bold 28px Georgia, serif', 'left');
-                let fs = 46; ctx.font=`${fs}px Georgia, serif`;
-                while(ctx.measureText(p).width > W-180 && fs>26){fs--;ctx.font=`${fs}px Georgia, serif`;}
-                chalkText(ctx, p, 118, y, 'rgba(255,255,255,0.95)', `${fs}px Georgia, serif`, 'left');
-                chalkLine(ctx, 68, y+14, W-68, y+14, 'rgba(255,255,255,0.12)', 1);
-                y += 72;
-            });
+            if (pinchos.length === 0) {
+                chalkText(ctx, '(Escribe los pinchos en el formulario)', W/2, y+40, E.textSutil, 'italic 28px Georgia, serif');
+                y += 90;
+            } else {
+                pinchos.forEach(p => {
+                    chalkText(ctx, '✦', 80, y, E.accent, 'bold 26px Georgia, serif', 'left');
+                    let fs = 44; ctx.font=`${fs}px Georgia, serif`;
+                    while(ctx.measureText(p).width > W-180 && fs>24){fs--;ctx.font=`${fs}px Georgia, serif`;}
+                    chalkText(ctx, p, 118, y, E.textPrincipal, `${fs}px Georgia, serif`, 'left');
+                    ctx.fillStyle = E.textSutil; ctx.fillRect(68, y+14, W-136, 1);
+                    y += 70;
+                });
+            }
 
-            chalkLine(ctx, 80, y+10, W-80, y+10, 'rgba(255,255,255,0.3)', 2);
-            chalkText(ctx, precio, W/2, y+90, '#F07040', 'bold 80px Georgia, serif');
-            chalkText(ctx, 'la unidad', W/2, y+140, 'rgba(255,255,255,0.6)', 'italic 30px Georgia, serif');
+            if (precio) {
+                ctx.fillStyle = E.textSutil; ctx.fillRect(80, y+10, W-160, 2);
+                chalkText(ctx, precio, W/2, y+100, E.accent, E.fontPrecio);
+                chalkText(ctx, 'la unidad', W/2, y+148, E.textSutil, 'italic 28px Georgia, serif');
+            }
         }
 
         function dibujarCartelHorario(ctx, W, H) {
+            const E = CART_ESTILOS[cartEstiloActual];
             const titulo = document.getElementById('cartHorTitulo').value || 'Horario especial';
             const l1 = document.getElementById('cartHorLinea1').value.trim();
             const l2 = document.getElementById('cartHorLinea2').value.trim();
             const l3 = document.getElementById('cartHorLinea3').value.trim();
             const lineas = [l1,l2,l3].filter(Boolean);
 
-            chalkText(ctx, 'HORARIO', W/2, 230, '#F07040', 'bold 90px Georgia, serif');
-            chalkText(ctx, 'DE APERTURA', W/2, 290, 'rgba(255,255,255,0.88)', 'bold 48px Georgia, serif');
-            chalkLine(ctx, 80, 308, W-80, 308, '#F07040', 4);
-            chalkLine(ctx, 100, 318, W-100, 318, 'rgba(240,112,64,0.3)', 2);
+            chalkText(ctx, 'HORARIO', W/2, 230, E.accent, E.fontTitulo.replace(/\d+px/,'88px'));
+            chalkText(ctx, 'DE APERTURA', W/2, 290, E.textSecundario, E.fontSubtitulo.replace(/\d+px/,'46px'));
+            E.separador(ctx, 80, 308, W-80);
 
             // Banda subtítulo
             const sg = ctx.createLinearGradient(80,330,80,385);
-            sg.addColorStop(0,'rgba(240,112,64,0.25)'); sg.addColorStop(1,'rgba(240,112,64,0.05)');
+            sg.addColorStop(0,'rgba(128,80,20,0.22)'); sg.addColorStop(1,'rgba(0,0,0,0.0)');
             ctx.fillStyle=sg;
             ctx.beginPath();
             if(ctx.roundRect) ctx.roundRect(80,332,W-160,50,25); else ctx.rect(80,332,W-160,50);
             ctx.fill();
-            chalkText(ctx, titulo, W/2, 366, 'rgba(255,200,170,0.95)', 'italic 28px Georgia, serif');
+            chalkText(ctx, titulo, W/2, 366, E.textSecundario, 'italic 28px Georgia, serif');
 
             let y = 460;
             lineas.forEach(l => {
@@ -6550,14 +6702,14 @@
                 if (parts.length > 1) {
                     const label = parts[0].toUpperCase()+':';
                     const valor = parts.slice(1).join(':').trim();
-                    chalkText(ctx, label, 80, y, 'rgba(255,255,255,0.85)', 'bold 38px Georgia, serif', 'left');
+                    chalkText(ctx, label, 80, y, E.textPrincipal, 'bold 38px Georgia, serif', 'left');
                     ctx.font = 'bold 38px Georgia, serif';
                     const lw = ctx.measureText(label+' ').width;
-                    chalkText(ctx, valor, 80+lw, y, '#F07040', 'bold 38px Georgia, serif', 'left');
+                    chalkText(ctx, valor, 80+lw, y, E.accent, 'bold 38px Georgia, serif', 'left');
                 } else {
-                    chalkText(ctx, l, 80, y, 'rgba(255,255,255,0.9)', '38px Georgia, serif', 'left');
+                    chalkText(ctx, l, 80, y, E.textPrincipal, '38px Georgia, serif', 'left');
                 }
-                chalkLine(ctx, 68, y+16, W-68, y+16, 'rgba(255,255,255,0.12)', 1);
+                ctx.fillStyle = E.textSutil; ctx.fillRect(68, y+16, W-136, 1);
                 y += 90;
             });
 
