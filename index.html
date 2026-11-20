@@ -1707,6 +1707,10 @@
                                 <span class="cart-tipo-icon">🏖️</span>
                                 <span class="cart-tipo-label">Vacaciones</span>
                             </button>
+                            <button class="cart-tipo-btn" data-tipo="buenosdias" onclick="cartSelTipo(this)">
+                                <span class="cart-tipo-icon">☀️</span>
+                                <span class="cart-tipo-label">Buenos días</span>
+                            </button>
                             <button class="cart-tipo-btn" data-tipo="pinchos" onclick="cartSelTipo(this)">
                                 <span class="cart-tipo-icon">🍢</span>
                                 <span class="cart-tipo-label">Pinchos del día</span>
@@ -1722,6 +1726,13 @@
                             <h3>Cartel Cerrado</h3>
                             <input id="cartCerradoDia" class="piz-input" placeholder="Día (ej: Mañana Miércoles, Hoy)" />
                             <input id="cartCerradoMsg" class="piz-input" placeholder="Mensaje (ej: ¡Os esperamos el jueves! ❤️)" />
+                        </div>
+
+                        <!-- Formulario Buenos días -->
+                        <div id="cartFormBuenosdias" class="piz-form-card" style="display:none;">
+                            <h3>Buenos días ☀️</h3>
+                            <input id="cartBDMsg" class="piz-input" placeholder="Mensaje (ej: ¡Ya estamos abiertos! ☕)" />
+                            <input id="cartBDHorario" class="piz-input" placeholder="Horario de hoy (ej: Abiertos hasta las 15:00)" />
                         </div>
 
                         <!-- Formulario Vacaciones -->
@@ -6357,8 +6368,9 @@
             document.querySelectorAll('.cart-tipo-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             cartTipoActual = btn.dataset.tipo;
-            ['cerrado','vacaciones','pinchos','horario'].forEach(t => {
-                document.getElementById(`cartForm${t.charAt(0).toUpperCase()+t.slice(1)}`).style.display = t===cartTipoActual ? 'block' : 'none';
+            ['cerrado','buenosdias','vacaciones','pinchos','horario'].forEach(t => {
+                const el = document.getElementById(`cartForm${t.charAt(0).toUpperCase()+t.slice(1)}`);
+                if (el) el.style.display = t===cartTipoActual ? 'block' : 'none';
             });
             document.getElementById('cartPreviewWrap').style.display = 'none';
         }
@@ -6500,7 +6512,9 @@
                 ctx.textAlign='center';
                 ctx.fillText('✦  ✦  ✦', W/2, 155);
 
-                if (cartTipoActual === 'cerrado') {
+                if (cartTipoActual === 'buenosdias') {
+                    dibujarCartelBuenosDias(ctx, W, H);
+                } else if (cartTipoActual === 'cerrado') {
                     dibujarCartelCerrado(ctx, W, H);
                 } else if (cartTipoActual === 'vacaciones') {
                     dibujarCartelVacaciones(ctx, W, H);
@@ -6570,6 +6584,41 @@
                 aplicarFondoEstilo(ctx, W, H, cartEstiloActual);
                 dibujarContenido();
             }
+        }
+
+        function dibujarCartelBuenosDias(ctx, W, H) {
+            const E = CART_ESTILOS[cartEstiloActual];
+            const msg = document.getElementById('cartBDMsg').value.trim() || '¡Ya estamos abiertos!';
+            const horario = document.getElementById('cartBDHorario').value.trim();
+
+            // Sol grande centrado
+            ctx.font = '90px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('☀️', W/2, 280);
+
+            // BUENOS DÍAS — enorme, protagonista
+            chalkText(ctx, 'BUENOS', W/2, 390, E.accent, E.fontTitulo.replace(/\d+px/, '110px'));
+            chalkText(ctx, 'DÍAS', W/2, 500, E.accent, E.fontTitulo.replace(/\d+px/, '110px'));
+
+            E.separador(ctx, 100, 525, W-100);
+
+            // Mensaje personalizado
+            if (msg) {
+                // Ajuste automático de tamaño si es largo
+                let fs = 50; ctx.font = `italic ${fs}px Georgia, serif`;
+                while (ctx.measureText(msg).width > W - 120 && fs > 28) { fs--; ctx.font = `italic ${fs}px Georgia, serif`; }
+                chalkText(ctx, msg, W/2, 620, E.textSecundario, `italic ${fs}px Georgia, serif`);
+            }
+
+            // Horario si lo puso
+            if (horario) {
+                ctx.fillStyle = E.textSutil; ctx.fillRect(120, 650, W-240, 1);
+                chalkText(ctx, horario, W/2, 710, E.textSutil, '32px Georgia, serif');
+            }
+
+            // Taza + "☕" decorativa abajo
+            ctx.font = '52px serif'; ctx.textAlign = 'center';
+            ctx.fillText('☕', W/2, 820);
         }
 
         function dibujarCartelCerrado(ctx, W, H) {
